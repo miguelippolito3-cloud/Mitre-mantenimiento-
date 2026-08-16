@@ -153,7 +153,7 @@
       <h1>Mantenimiento del parque</h1>
       <p>Demoliciones · Movimiento de suelos · Alquiler de maquinaria</p>
     </div>
-    <span class="demo-tag">Demo · datos de ejemplo</span>
+    <span class="demo-tag">Piloto · parque real</span>
   </div>
 </header>
 <nav><div class="nav-in" id="nav"></div></nav>
@@ -162,136 +162,51 @@
 
 <script>
 'use strict';
-/* ============ Datos de ejemplo (12/08/2026) ============ */
-const HOY = new Date(2026, 7, 12);
+/* ============ Parque real de Grupo Mitre (importado del LISTADO DE BIENES DE USO) ============ */
+const HOY = new Date(); HOY.setHours(0, 0, 0, 0);
 const $ = (s, el) => (el || document).querySelector(s);
 const fmt$ = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
 const fmtN = new Intl.NumberFormat('es-AR');
 const fecha = d => d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const dias = d => Math.floor((d - HOY) / 864e5);
 
-const OBRAS = ['Obra CRIBA · Núñez', 'Obra COTO · Avellaneda', 'Demolición VIZORA · Puerto Madero',
-  'Obra CAPUTO · Caballito', 'Alquiler · Pellegrinet SA', 'Planta Munro', 'Taller Munro'];
-
 const CATS = {
-  EX: { nombre: 'Excavadora',        unidad: 'hs', marcas: ['Caterpillar 336', 'Komatsu PC200', 'Volvo EC220', 'John Deere 200G'] },
-  CF: { nombre: 'Cargadora frontal', unidad: 'hs', marcas: ['Caterpillar 950', 'Volvo L90', 'XCMG LW300'] },
-  BK: { nombre: 'Robot Brokk',       unidad: 'hs', marcas: ['Brokk 170', 'Brokk 330', 'Brokk 520'] },
-  RD: { nombre: 'Equipo vial',       unidad: 'hs', marcas: ['Rodillo Hamm HD12', 'Motoniveladora CAT 120', 'Minicargadora Bobcat S650'] },
-  GE: { nombre: 'Grupo electrógeno', unidad: 'hs', marcas: ['Cummins C150', 'CAT DE110', 'Himoinsa HFW-100'] },
-  CM: { nombre: 'Camión',            unidad: 'km', marcas: ['Scania P360', 'Mercedes-Benz Actros', 'Iveco Tector'] },
-  CV: { nombre: 'Camioneta',         unidad: 'km', marcas: ['Toyota Hilux', 'VW Amarok', 'Ford Ranger'] },
+  MAQ: { nombre: 'Maquinaria',       unidad: 'hs' },
+  EQU: { nombre: 'Grupos y equipos', unidad: 'hs' },
+  ACC: { nombre: 'Accesorios',       unidad: null },
+  HER: { nombre: 'Herramientas',     unidad: null },
+  CAM: { nombre: 'Camiones',         unidad: 'km' },
+  CV:  { nombre: 'Camionetas',       unidad: 'km' },
+  AU:  { nombre: 'Autos',            unidad: 'km' },
+  MO:  { nombre: 'Motos',            unidad: 'km' },
+  OT:  { nombre: 'Otros',            unidad: null },
 };
 
-/* Bienes destacados, con bitácora completa */
-const BIENES = [
-  { id: 'EX-007', cat: 'EX', modelo: 'Komatsu PC200-8', anio: 2017, obra: OBRAS[1], estado: 'operativo',
-    medidor: 11240, plan: { intervalo: 500, ultimo: 10700 },
-    docs: [{ t: 'Seguro técnico', v: new Date(2026, 10, 3) }, { t: 'Matafuegos cabina', v: new Date(2027, 1, 15) }],
-    bitacora: [
-      { f: new Date(2026, 7, 2),  tipo: 'Lectura',    det: 'Horómetro 11.240 hs (parte de obra)', por: 'Capataz · COTO Avellaneda', costo: 0 },
-      { f: new Date(2026, 5, 14), tipo: 'Service',    det: 'Service 10.700 hs: aceite motor e hidráulico, filtros, engrase general', por: 'Taller Mitre · R. Godoy', costo: 1850000 },
-      { f: new Date(2026, 3, 28), tipo: 'Reparación', det: 'Cambio de manguera hidráulica de brazo, pérdida detectada en obra', por: 'Taller Mitre · R. Godoy', costo: 640000 },
-      { f: new Date(2026, 1, 10), tipo: 'Inspección', det: 'Inspección trimestral de tren de rodaje: 30% de desgaste en cadenas', por: 'Taller Mitre · J. Benítez', costo: 0 },
-    ] },
-  { id: 'EX-012', cat: 'EX', modelo: 'Caterpillar 336', anio: 2021, obra: OBRAS[2], estado: 'operativo',
-    medidor: 7840, plan: { intervalo: 500, ultimo: 7600 },
-    docs: [{ t: 'Seguro técnico', v: new Date(2027, 2, 20) }, { t: 'Matafuegos cabina', v: new Date(2026, 11, 1) }],
-    bitacora: [
-      { f: new Date(2026, 7, 8),  tipo: 'Lectura', det: 'Horómetro 7.840 hs (parte de obra)', por: 'Operador · L. Sosa', costo: 0 },
-      { f: new Date(2026, 6, 3),  tipo: 'Service', det: 'Service 7.600 hs: aceite, filtros, revisión de martillo hidráulico', por: 'Taller Mitre · R. Godoy', costo: 2100000 },
-      { f: new Date(2026, 4, 19), tipo: 'Reparación', det: 'Reemplazo de dientes de balde y cuchilla', por: 'Repuestos Vial Sur (externo)', costo: 980000 },
-    ] },
-  { id: 'BK-002', cat: 'BK', modelo: 'Brokk 330', anio: 2022, obra: OBRAS[2], estado: 'operativo',
-    medidor: 2310, plan: { intervalo: 250, ultimo: 2200 },
-    docs: [{ t: 'Seguro técnico', v: new Date(2027, 0, 30) }],
-    bitacora: [
-      { f: new Date(2026, 7, 10), tipo: 'Lectura', det: 'Horómetro 2.310 hs', por: 'Operador · M. Paredes', costo: 0 },
-      { f: new Date(2026, 6, 22), tipo: 'Service', det: 'Service 2.200 hs según plan Brokk: hidráulico y eléctrico', por: 'Brokk Argentina (servicio oficial)', costo: 3400000 },
-    ] },
-  { id: 'CF-003', cat: 'CF', modelo: 'Caterpillar 950 GC', anio: 2018, obra: OBRAS[6], estado: 'taller',
-    medidor: 9120, plan: { intervalo: 500, ultimo: 9000 },
-    docs: [{ t: 'Seguro técnico', v: new Date(2026, 9, 12) }],
-    bitacora: [
-      { f: new Date(2026, 7, 6), tipo: 'Reparación', det: 'Ingresa a taller: recalentamiento de transmisión. En desarme y diagnóstico', por: 'Taller Mitre · J. Benítez', costo: 0 },
-      { f: new Date(2026, 6, 30), tipo: 'Falla', det: 'Reporte desde obra CAPUTO: alarma de temperatura de transmisión', por: 'Operador · D. Ferreyra', costo: 0 },
-      { f: new Date(2026, 5, 2), tipo: 'Service', det: 'Service 9.000 hs completo', por: 'Taller Mitre · R. Godoy', costo: 1650000 },
-    ] },
-  { id: 'CM-021', cat: 'CM', modelo: 'Scania P360 batea', anio: 2019, obra: OBRAS[0], estado: 'operativo',
-    medidor: 187400, plan: { intervalo: 15000, ultimo: 180000 },
-    docs: [{ t: 'VTV', v: new Date(2026, 7, 20) }, { t: 'Seguro flota', v: new Date(2026, 11, 31) }, { t: 'RUTA', v: new Date(2027, 3, 5) }],
-    bitacora: [
-      { f: new Date(2026, 7, 5), tipo: 'Lectura', det: 'Odómetro 187.400 km', por: 'Chofer · C. Ávalos', costo: 0 },
-      { f: new Date(2026, 4, 11), tipo: 'Service', det: 'Service 180.000 km: aceite, filtros, frenos delanteros', por: 'Taller Diésel Norte (externo)', costo: 1240000 },
-      { f: new Date(2026, 2, 3), tipo: 'Reparación', det: 'Cambio de 4 cubiertas traseras', por: 'Neumáticos Panamericana', costo: 2900000 },
-    ] },
-  { id: 'CV-015', cat: 'CV', modelo: 'Toyota Hilux SRX 4x4', anio: 2022, obra: OBRAS[3], estado: 'operativo',
-    medidor: 96800, plan: { intervalo: 10000, ultimo: 85000 },
-    docs: [{ t: 'VTV', v: new Date(2027, 1, 18) }, { t: 'Seguro flota', v: new Date(2026, 11, 31) }],
-    bitacora: [
-      { f: new Date(2026, 7, 1), tipo: 'Lectura', det: 'Odómetro 96.800 km', por: 'J. de obra · P. Iriarte', costo: 0 },
-      { f: new Date(2026, 0, 26), tipo: 'Service', det: 'Service 85.000 km en concesionario', por: 'Toyota San Martín', costo: 520000 },
-    ] },
-  { id: 'GE-004', cat: 'GE', modelo: 'Cummins C150 D5', anio: 2016, obra: OBRAS[5], estado: 'operativo',
-    medidor: 15600, plan: { intervalo: 400, ultimo: 15450 },
-    docs: [{ t: 'Matafuegos', v: new Date(2026, 6, 31) }, { t: 'Medición de puesta a tierra', v: new Date(2026, 9, 15) }],
-    bitacora: [
-      { f: new Date(2026, 6, 18), tipo: 'Service', det: 'Service 15.450 hs: aceite, filtros de gasoil y aire, prueba en carga', por: 'Taller Mitre · J. Benítez', costo: 480000 },
-    ] },
-  { id: 'RD-006', cat: 'RD', modelo: 'Minicargadora Bobcat S650', anio: 2020, obra: OBRAS[4], estado: 'alquilado',
-    medidor: 4980, plan: { intervalo: 250, ultimo: 4900 },
-    docs: [{ t: 'Seguro técnico', v: new Date(2027, 0, 10) }],
-    bitacora: [
-      { f: new Date(2026, 7, 4), tipo: 'Lectura', det: 'Horómetro 4.980 hs, informado por cliente de alquiler', por: 'Pellegrinet SA', costo: 0 },
-      { f: new Date(2026, 6, 15), tipo: 'Service', det: 'Service 4.900 hs previo a entrega en alquiler', por: 'Taller Mitre · R. Godoy', costo: 390000 },
-    ] },
-];
+const PARQUE = [{"id":"ACC003","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"WECAN","modelo":"","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC004","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"KRUPP","modelo":"HM-350","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC006","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"STANLEY","modelo":"","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACCESORIO DE BOBCATS","estado":"taller"},{"id":"ACC007","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA COMBICUTTER","marca":"ATLAS COPCO","modelo":"CC-250","anio":"2008","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO PROVINCIA PRENDA  - FOGABA-PCIA","estado":"operativo"},{"id":"ACC008","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"ATLAS COPCO","modelo":"DP-2000","anio":"2008","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC009","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"KRUPP","modelo":"CC-1500 R","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC010","cat":"ACC","clas":"PALA","desc":"ACC  PALA RASTRA","marca":"GENOVESE","modelo":"PALA DE ARRASTRE","anio":"2000","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC011","cat":"ACC","clas":"PERFORADOR","desc":"PERFORADOR HIDRAULICO (HOYADORA)","marca":"LOWE","modelo":"1200-EH","anio":"1997","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC013","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"","modelo":"","anio":"1997","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC014","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-500","anio":"2015","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"SE CAMBIO POR EL HP350(COMPRA ANULADA) A PRENDAR","estado":"operativo"},{"id":"ACC015","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"INDECO","modelo":"JRP-850","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC016","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-2500","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC017","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-2500","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC018","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-200","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC019","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO EXTENSOR","marca":"COSBEN","modelo":"PBS-35.80","anio":"2017","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC020","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DM-C10","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"EX LEASING BANCO ITAU A PRENDAR","estado":"operativo"},{"id":"ACC021","cat":"ACC","clas":"CIZALLA","desc":"MORDAZA - CIZALLA","marca":"DAEMO","modelo":"DMP-200Q","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC022","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DOOSAN","modelo":"RC-22","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC023","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"PALFINGER","modelo":"PK-42502","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"24/6/2019 SE COLOCO AL CAMION AD 137 IS PRENDA - BANCO PROVINCIA","estado":"operativo"},{"id":"ACC024","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"CHICAGO PNEUMATIC","modelo":"RX-3","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"INCLUIDO EN MAQ041","estado":"operativo"},{"id":"ACC025","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B360","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"FINALIZA EN JULIO 2023 NO PRENDABLE-LEASING ITAU","estado":"operativo"},{"id":"ACC026","cat":"ACC","clas":"CRIBA","desc":"CUCHARA DE CRIBADO","marca":"MBCRUSHER","modelo":"MB-S18 S4","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":", A PRENDAR","estado":"operativo"},{"id":"ACC027","cat":"ACC","clas":"FRESADORA","desc":"FRESADORA","marca":"MBCRUSHER","modelo":"MB-R500","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC028","cat":"ACC","clas":"PINZA DE MAQUINA","desc":"PINZA SELECCIONADORA","marca":"MBCRUSHER","modelo":"MB-G1200 S2","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC029","cat":"ACC","clas":"PINZA DE MAQUINA","desc":"PINZA SELECCIONADORA","marca":"MBCRUSHER","modelo":"MB-G900 S2","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC030","cat":"ACC","clas":"TRITURADORA","desc":"TRITURADORA MANDIBULA","marca":"MBCRUSHER","modelo":"BF80-3","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC031","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B230","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC032","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ031 NO PRENDABLE","estado":"operativo"},{"id":"ACC033","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ033 NO PRENDABLE","estado":"operativo"},{"id":"ACC034","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R220","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ048","estado":"operativo"},{"id":"ACC035","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"AMCO VEBA","modelo":"V815 3S","anio":"2011","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"ACC DE KFV 108 CHASIS PRENDA - BANCO PROVINCIA","estado":"operativo"},{"id":"ACC036","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B250","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC037","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"SOOSAN","modelo":"SQ120","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC038","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"SOOSAN","modelo":"SQ120","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC039","cat":"ACC","clas":"IMAN","desc":"IMAN","marca":"DYNASET","modelo":"HMAG PRO 1200-49-K","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC040","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R260","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ046 A PRENDAR","estado":"operativo"},{"id":"ACC041","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R260","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ050 A PRENDAR","estado":"operativo"},{"id":"ACC042","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ054 A PRENDAR","estado":"operativo"},{"id":"ACC043","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DX-380","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ042 A PRENDAR","estado":"operativo"},{"id":"ACC044","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DMC330R","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC045","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"DARDA","modelo":"MC300","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC046","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC440","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC047","cat":"ACC","clas":"BARREDORA","desc":"BARREDORA","marca":"BOBCAT","modelo":"72 SWEEPER","anio":"2015","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC048","cat":"ACC","clas":"CIZALLA","desc":"MORDAZA - CIZALLA","marca":"DAEMO","modelo":"DMP300Q","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC049","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DRP335","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC050","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ059(NO ESTABA EN LISTADO)","estado":"operativo"},{"id":"ACC051","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ060(NO ESTABA EN LISTADO)","estado":"operativo"},{"id":"ACC052","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC340","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC053","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"TREVI BENNE","modelo":"FR18","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC054","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO LARGO DEMOLICION","marca":"DOOSAN","modelo":"DX340LCA-K","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC055","cat":"ACC","clas":"CIZALLA","desc":"TANK CUTTER","marca":"DARDA","modelo":"TC120","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC056","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"TREVI BENNE","modelo":"FR18","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC057","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO LARGO DEMOLICION","marca":"DOOSAN","modelo":"DX340LCA-K","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC058","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC480","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO ESTABA EN EL LISTADO","estado":"operativo"},{"id":"ACC059","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC060","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC061","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DX-380","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC062","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC063","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC064","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC065","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"HIDROGRUBERT","modelo":"5000","anio":"2009","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE HWN829","estado":"operativo"},{"id":"ACC066","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 900 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC067","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 200 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC068","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 320 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC069","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DEHACO","modelo":"MCR350","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC070","cat":"ACC","clas":"COMPACTADOR","desc":"COMPACTADOR HIDRAULICO","marca":"DEHACO","modelo":"HYRAX 175","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC071","cat":"ACC","clas":"TRITURADORA","desc":"TRITURADOR FORESTAL","marca":"FAE","modelo":"UML/S/EX/VT","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC072","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA PULVERIZADORA","marca":"SOCOMEC","modelo":"SFB800","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC073","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"METALMEC","modelo":"UM 2000","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC074","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"METALMEC","modelo":"UM 2000","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC075","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"DEHACO","modelo":"SH180R","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC076","cat":"ACC","clas":"CUCHARA ASPIRADORA","desc":"CUCHARA ASPIRADORA","marca":"DYNASET","modelo":"HRVB-830-90","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC077","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB105","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC078","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB155","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC079","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB155","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC080","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB205","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC081","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB305","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC087","cat":"ACC","clas":"MARTILLO HIDRAULICO","desc":"MARTILLO HIDRAULICO","marca":"SOCOMEC","modelo":"DMS400","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC088","cat":"ACC","clas":"COMPACTADOR HIDRÁULICO","desc":"COMPACTADOR HIDRÁULICO","marca":"SOCOMEC","modelo":"SPV 610","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC089","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"","marca":"","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC090","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"TREVI BENNE","modelo":"CS20RS","anio":"2025","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"A089RBT","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"CZ - Z MAX 200","anio":"2018","dom":"A089RBT","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"HECTOR OMAR MICHIA","obs":"","estado":"operativo"},{"id":"A191OKK","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"Z MAX 200","anio":"2023","dom":"A191OKK","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"SERGIO AGUIRRE, RAUL GONZALEZ","obs":"CONDUCTOR DESIGNADO: MEJORAMIENTO BARRIO 31","estado":"operativo"},{"id":"KFV108","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ATEGO 1725","anio":"2011","dom":"KFV108","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"CON HIDROGRUA ACC0035","estado":"operativo"},{"id":"AB266SV","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHEVROLET","modelo":"MONTANA 1.8 LS PACK","anio":"2017","dom":"AB266SV","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AB844NH","cat":"CV","clas":"Camioneta","desc":"SUV","marca":"CHEVROLET","modelo":"TRACKER 1.8 LTZ 4X2 L/17","anio":"2017","dom":"AB844NH","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CRISTIAN LINARES","obs":"","estado":"operativo"},{"id":"NFF193","cat":"CAM","clas":"Camion","desc":"CHASIS C/CAJA VOLCADORA","marca":"MERCEDES BENZ","modelo":"272-710","anio":"2013","dom":"NFF193","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"AQUINO ALEX","obs":"","estado":"operativo"},{"id":"PAR301","cat":"CAM","clas":"Camion","desc":"CHASIS C/CAB C/CAJA VOLC","marca":"MERCEDES BENZ","modelo":"AXOR 2831 K","anio":"2015","dom":"PAR301","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AD275AO","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"VOLKSWAGEN","modelo":"6Y-AMAROK DC V6 EXTREME 3.0L TDI 4X4 A","anio":"2018","dom":"AD275AO","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"IPPOLITO MIGUEL ANGEL","obs":"","estado":"operativo"},{"id":"AD275AR","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"CHEVROLET","modelo":"ONIX JOY 5P 1.4 N LS MT+","anio":"2018","dom":"AD275AR","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"INSAURRALDE ROCIO","obs":"","estado":"operativo"},{"id":"AD275AS","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"CHEVROLET","modelo":"ONIX JOY 5P 1.4 N LS MT+","anio":"2018","dom":"AD275AS","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"la ultima asignacion fua a Lucia Montañez","obs":"Soledad Lambri lo devolvio. Al7/8 lo utiliza Damore Fabian- obra La Plata","estado":"operativo"},{"id":"AD351PK","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X4 D/C SRX 2.8 TDI 6 A/T","anio":"2018","dom":"AD351PK","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"IPPOLITO MIGUEL","obs":"","estado":"operativo"},{"id":"AD351PL","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X4 D/C SRX 2.8 TDI 6 A/T","anio":"2018","dom":"AD351PL","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MAURINO MAXIMILIANO","obs":"","estado":"operativo"},{"id":"PPP775","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"MERCEDES BENZ","modelo":"VITO 111 CDI","anio":"2016","dom":"PPP775","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PRONESTI CRISTIAN","obs":"","estado":"operativo"},{"id":"AD718YY","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"TOYOTA","modelo":"COROLLA XLI 1.8 6M/T","anio":"2019","dom":"AD718YY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARTIN REPETTO","obs":"","estado":"operativo"},{"id":"AD896WM","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 D/C DX 2.4 TDI 6 M/T","anio":"2019","dom":"AD896WM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GONZALEZ MEZA ANGEL","obs":"04/2020 SE COMPRO A TOYOTA (EX LEASING)","estado":"operativo"},{"id":"AE630AQ","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"TOYOTA","modelo":"ETIOS X 1.5 6MT","anio":"2021","dom":"AE630AQ","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"Cristian Linares","obs":"lo esta comprando Cristian Linares","estado":"operativo"},{"id":"AE704IE","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 DC DX 2.4 TDI 6 MT","anio":"2021","dom":"AE704IE","tit":"SILVA MARIA XIMENA","aseg":"ALLIANZ ARGENTINA","vig":[2025,9,16],"resp":"MARIANI GABRIEL","obs":"SUMA ASEGURDADA: VALOR REPOSICION- VALOR DE REFERENCIA 32,000,000","estado":"operativo"},{"id":"AF300FM","cat":"CV","clas":"Camioneta","desc":"RURAL 4/5 PUERTAS","marca":"VOLKSWAGEN","modelo":"TAOS HIGHLINE 250 TSI AT","anio":"2022","dom":"AF300FM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CAIRONE CRISTINA","obs":"","estado":"operativo"},{"id":"AF615YX","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHANGAN","modelo":"MD201","anio":"2022","dom":"AF615YX","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARCELA VENEGONI","obs":"","estado":"operativo"},{"id":"AF680LC","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2022","dom":"AF680LC","tit":"LEASING SUPERVIELLE","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JORGE VELCHEFF","obs":"","estado":"operativo"},{"id":"AF726YD","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHANGAN","modelo":"MD201","anio":"2022","dom":"AF726YD","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JAVIER ARRUE","obs":"","estado":"operativo"},{"id":"AF787ZF","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF787ZF","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"LEANDRO TRISCHLER- IVC","obs":"VTV VIG 31/07/2026 - Cementerio etapa 3 (deberian devolverlo a finales de abril 2026)","estado":"operativo"},{"id":"AF836LM","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF836LM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"DOLORES  ZULUETA","obs":"CONDUCTOR DESIGNADO- Dolores Zulueta Ivc-  +54 9 2355 48-6896 - VTV VIG 30/06/2026","estado":"operativo"},{"id":"AF836LN","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF836LN","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"LEONARDO MARIANI","obs":"Conductor asigando:Dolores Zulueta Ivc-  +54 9 2355 48-6896 - VTV VIG 30/06/2026","estado":"operativo"},{"id":"AF930PU","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"TOYOTA HILUX 4X2 DC DX 2.4 TDI 6MT","anio":"2023","dom":"AF930PU","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"DIKRAN HURMUZ","obs":"CONDUCTOR DESIGNADO:  JAVIER ANTEQUERA","estado":"operativo"},{"id":"AB055ZY","cat":"CAM","clas":"Camion","desc":"CHASIS","marca":"MERCEDES BENZ","modelo":"AXOR 1933 S","anio":"2017","dom":"AB055ZY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PEREYRA HUGO","obs":"ALTA 14/7/2020","estado":"operativo"},{"id":"AG045PL","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"TOYOTA HILUX 4X2 DC DX 2.4 TDI 6MT","anio":"2023","dom":"AG045PL","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PICCALUGA","obs":"CONDUCTOR DESIGNADO: DIKRAN HURMUZ","estado":"operativo"},{"id":"CNR204","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA SIMPLE STD","anio":"1999","dom":"CNR204","tit":"LOS TOCONES SA","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"CZU145","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"FORD","modelo":"F-14.000","anio":"1999","dom":"CZU145","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GONZALO CARRIZO","obs":"","estado":"operativo"},{"id":"FBG118","cat":"CV","clas":"Camioneta","desc":"CHASIS CON CABINA","marca":"IVECO","modelo":"DAILY 70.12","anio":"2005","dom":"FBG118","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"B20","obs":"","estado":"operativo"},{"id":"FCC370","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA DOBLE DX 2.5 TD","anio":"2005","dom":"FCC370","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"GGL633","cat":"CAM","clas":"Camion","desc":"CAMION","marca":"MERCEDES BENZ","modelo":"1624","anio":"2007","dom":"GGL633","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"TIENE SEMIREMOLQUE SNM 567","estado":"operativo"},{"id":"GXG161","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA Y CON CAJA","marca":"MERCEDES BENZ","modelo":"2423-K","anio":"2008","dom":"GXG161","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CHOFER NUEVO","obs":"","estado":"operativo"},{"id":"HMP376","cat":"CAM","clas":"Camion","desc":"PICK UP","marca":"KIA","modelo":"K2700 L/B S/C","anio":"2008","dom":"HMP376","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MIGUEL SULIER","obs":"","estado":"operativo"},{"id":"HWN829","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"VOLKSWAGEN","modelo":"13180","anio":"2009","dom":"HWN829","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GALERIA","obs":"CON HIDROGRUA ACC0065","estado":"operativo"},{"id":"IVX079","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"VOLKSWAGEN","modelo":"SURAN 90A","anio":"2010","dom":"IVX079","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"RICCI JORGE","obs":"","estado":"operativo"},{"id":"AD137IR","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"B77 AXOR 3131K","anio":"2018","dom":"AD137IR","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"AQUINO DAVID","obs":"","estado":"operativo"},{"id":"LEL185","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"AUDI","modelo":"A3 SPORTBACK 1.4 T FSI","anio":"2012","dom":"LEL185","tit":"IPPOLITO MIGUEL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"LRR575","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA DOBLE SRV 3.0 TDI","anio":"2012","dom":"LRR575","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"VICENTE ARGENIO","obs":"","estado":"operativo"},{"id":"LZZ661","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"VOLKSWAGEN","modelo":"AMAROK 2.0 TDI 180 CV 892","anio":"2013","dom":"LZZ661","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"SIN ASIGNACION","obs":"","estado":"operativo"},{"id":"MAD190","cat":"CV","clas":"Camioneta","desc":"FURGON","marca":"CITROEN","modelo":"BERLINGO FURGON 1.4 FULL AM53","anio":"2012","dom":"MAD190","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CESAR ALVAREZ","obs":"","estado":"operativo"},{"id":"MXC936","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"RENAULT","modelo":"NUEVO MASTER L1H1 AA","anio":"2013","dom":"MXC936","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"OBRA EZEIZA","obs":"TRANSFERIDO EL 12/6/2020 DE IPP NESTOR A DM","estado":"operativo"},{"id":"AD137IS","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"B77 AXOR 3131K","anio":"2018","dom":"AD137IS","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"BARRIOS DOMINGO","obs":"24/6/2019 SE COLOCO ACC023 Y EJE(IND. PIOTTO)","estado":"operativo"},{"id":"NSJ419","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"RENAULT","modelo":"KANGOO CONFORT 1.5 DCI CD AA DA SVT 1P","anio":"2013","dom":"NSJ419","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"NYC895","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 C/S DX PACK 2.5 TDI","anio":"2014","dom":"NYC895","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"AD544NO","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ACCELO 815","anio":"2019","dom":"AD544NO","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"SE AGREGO TANQUE DE COMBUSTIBLE(BERTOTTO)ACCESORIOS OPCIONALES (según detalle) : PESOS 25.000.000,00 TANQUE - TANQUE DE COMBUSTIBLE PESOS 20.000.000,00 OTROS ACCESORIOS - SIST ELEC. DE CTRL DE COMBUSTIB PESOS 5.000.000,00","estado":"operativo"},{"id":"PIK996","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 C/D DX PACK ELECTRICO 2.5 TDI - H3","anio":"2015","dom":"PIK996","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"RIOS HECTOR","obs":"","estado":"operativo"},{"id":"AG045PE","cat":"CAM","clas":"Camion","desc":"CAMION C/VOLCADORA","marca":"MERCEDES BENZ","modelo":"ACCELO 815","anio":"2023","dom":"AG045PE","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"ALEGRE JUAN","obs":"CONDUCTOR DESIGNADO:  JUAN ALEGRE","estado":"operativo"},{"id":"WNS733","cat":"OT","clas":"Semirremolque","desc":"SEMIRREMOLQUE","marca":"PRATI - FRUEHAUF","modelo":"PB-F2-HD","anio":"1971","dom":"WNS733","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CARRETON","obs":"","estado":"operativo"},{"id":"A193ITW","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"Z MAX 200","anio":"2023","dom":"A193ITW","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"HECTOR MICHIA","obs":"","estado":"operativo"},{"id":"AG771HY","cat":"AU","clas":"Auto","desc":"TOYOTA A76 YARIS XLS 1,5 CVT","marca":"TOYOTA","modelo":"YARIS XLS 1,5","anio":"2024","dom":"AG771HY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JOANNA BONES","obs":"(Cementerio etapa 3 (imputacion hasta 15/4/2026 - a partir del 15/4/2026 lo utiliza Joanna Bones - imputar a control de gestion)","estado":"operativo"},{"id":"AH171YB","cat":"OT","clas":"Semirremolque","desc":"BACO  SEMI 1+2 EJES VOLCADOR TRASERO BATEA","marca":"BACO","modelo":"08-SEMI 1+2 EJES VOLCADOR TRASERO BATEA","anio":"2022","dom":"AH171YB","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AG590FZ","cat":"CAM","clas":"Camion","desc":":M. BENZ C AXOR 2544-31 LS TE 6X2 CD","marca":"MERCEDES BENZ","modelo":"C AXOR 2544-31 LS TE 6X2 CD","anio":"2024","dom":"AG590FZ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH171YI","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE CVT BZ","anio":"2025","dom":"AH171YI","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JIMENA SOLEDAD LAMBRI","obs":"chapa definitiva-06/6/25- NO RODAMIENTO; FECHA DE EMISIÓN 26 de marzo 2025","estado":"operativo"},{"id":"AH171YJ","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE CVT BZ","anio":"2025","dom":"AH171YJ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARTIN BUERO","obs":"chapa definitiva-06/6/25- AH171YJ - Federico D Eboli-  NO RODAMIENTO; FECHA DE EMISIÓN 26 de marzo 2025","estado":"operativo"},{"id":"AH181KQ","cat":"CAM","clas":"Camion","desc":"CHASIS C/CABINA DORMITORIO","marca":"SCANIA","modelo":"P380 B8X4","anio":"2025","dom":"AH181KQ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"ACCESORIOS CAJA VOLCADORA $ 42.080.000,00","estado":"operativo"},{"id":"AH255LS","cat":"AU","clas":"Auto","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 DC","anio":"2025","dom":"AH255LS","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH320KP","cat":"CAM","clas":"Camion","desc":"CHASI C/CABINA DORMITORIO","marca":"SCANIA","modelo":"P380 B8X4","anio":"2025","dom":"AH320KP","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH559QR","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ACCELO 1016 / 39","anio":"2025","dom":"AH559QR","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"CAJA VOLCADORA - $16.100.240,00","estado":"operativo"},{"id":"AH651YV","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"DFSK","modelo":"C-32","anio":"2025","dom":"AH651YV","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH651YW","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"DFSK","modelo":"C-32","anio":"2025","dom":"AH651YW","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"FABIAN D AMORE","obs":"","estado":"operativo"},{"id":"AH787XD","cat":"CAM","clas":"Camion","desc":"CAMION CON EQUIPO ROLL OF","marca":"SCANIA","modelo":"G440","anio":"2013","dom":"AH787XD","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"HER004","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER005","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER006","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER009","cat":"HER","clas":"MARTILLO","desc":"MARTILLO DEMOLEDOR PARA COMPRESOR","marca":"CETEC","modelo":"","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER011","cat":"HER","clas":"MARTILLO","desc":"MARTILLO DEMOLEDOR PARA COMPRESOR","marca":"SULLAIR","modelo":"MPB90A","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER018","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER020","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER021","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 2000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER034","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 2000-AVR 220V","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU045","cat":"HER","clas":"GRUPO ELECTROGENO","desc":"","marca":"GRUPO ELECTROGENO","modelo":"NIWA","anio":"GDW-","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"13-7-2025","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ034","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"SANY","modelo":"SY-135C","anio":"2017","dom":"CHM 89","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"BAJA 18/11/2020 PRENDA BANCO PROVINCIA","estado":"operativo"},{"id":"MAQ051","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2020","dom":"ECF75","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"BAJA - REEMPLAZO POR MAQ054 PRENDA - CREDICOOP","estado":"operativo"},{"id":"HER019","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"30/8/2018 NO PRENDABLE","estado":"operativo"},{"id":"ACC0003","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"ITALDEM","modelo":"K-1000","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ062","cat":"MAQ","clas":"MIEXCAVADORA","desc":"MINIEXCAVADORA","marca":"WACKER NEUSON","modelo":"EZ53","anio":"","dom":"WNCE0510JPAL00624","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"NUNCA SE OFICIALIZO LA COMPRA","estado":"operativo"},{"id":"MAQ002","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA PAT","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2012","dom":"DHKCEBACVB0008967","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 702.204,55 161.056,09 USD","estado":"operativo"},{"id":"MAQ003","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA PAT","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2012","dom":"DHKCEBACVB0008968","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 702.204,55 161.056,09 USD","estado":"operativo"},{"id":"MAQ035","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"SANY","modelo":"SY-215C","anio":"2017","dom":"CHM 90","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"VENTA 06-2021 - A LA ESPERA DEL PAGO TOTAL Y TRANSFERENCIA A PRENDAR","estado":"operativo"},{"id":"MAQ013","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA HIDRAULICA","marca":"KOMATSU","modelo":"PC200-8","anio":"2011","dom":"CHM 30","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"VENTA 06-2021 - A LA ESPERA DEL PAGO TOTAL Y TRANSFERENCIA A PRENDAR","estado":"operativo"},{"id":"EQU002","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"GRUPO ELECTROGENO C/TANQUE Y BATERIA","marca":"FENK","modelo":"B S 20 KVA","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 27.787,33 5.937,46 USD","estado":"operativo"},{"id":"EQU013","cat":"MAQ","clas":"COMPRESOR","desc":"COMPRESOR","marca":"SULLAIR","modelo":"185Q-KUB V2403","anio":"2018","dom":"12639","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"10.852,92 USD 116,70 USD","estado":"operativo"},{"id":"EQU032","cat":"MAQ","clas":"COMPRESOR","desc":"MOTOCOMPRESOR","marca":"CHICAGO PNEUMATIC","modelo":"CPC-CPS5.0","anio":"2016","dom":"APP440349","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 759.600,00 18.000,00 USD","estado":"operativo"},{"id":"EQU007","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"GRUPO ELECTROGENO","marca":"FIORI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ031","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"DOOSAN","modelo":"DX 225 LCA","anio":"2015","dom":"DHBCEBCJCF0050001","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 2.125.200,00 141.680,00 USD","estado":"operativo"},{"id":"MAQ038","cat":"MAQ","clas":"EXCAVADORA","desc":"MINIEXCAVADORA","marca":"BOBCAT","modelo":"E-35","anio":"2016","dom":"DQF79","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ039","cat":"MAQ","clas":"EXCAVADORA","desc":"MINIEXCAVADORA","marca":"BOBCAT","modelo":"E-50","anio":"2017","dom":"DQE73","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC0005","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"KRUPP","modelo":"HM-720-1 CS","anio":"1993","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ055","cat":"MAQ","clas":"CARGADOR FRONTAL","desc":"PALA CARGADORA","marca":"VOLVO","modelo":"L110F","anio":"2011","dom":"CMH01","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER082","cat":"MAQ","clas":"","desc":"ESTACION TOTAL","marca":"LEICA","modelo":"TS01","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER054","cat":"MAQ","clas":"LASER","desc":"LASER ROTATIVO","marca":"HILTI","modelo":"PR 2-HS A12","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER056","cat":"MAQ","clas":"LASER","desc":"LASER ROTATIVO","marca":"HILTI","modelo":"PR 2-HS A12","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU001","cat":"MAQ","clas":"MOTOBOMBA","desc":"MOTOBOMBA","marca":"HONDA","modelo":"WB-30-XT","anio":"2013","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU006","cat":"MAQ","clas":"COMPRESOR","desc":"MOTOCOMPRESOR","marca":"CETEC","modelo":"DTR 175 A-CJD","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU045","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"6,5 KVA","marca":"","modelo":"GRUPO ELECTROGENO","anio":"NIWA","dom":"2021","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"13-7-2025 SMILE BROKER","estado":"operativo"}];
 
-/* Resto del parque, generado en forma determinística hasta 156 bienes */
-(function generarParque() {
-  const keys = Object.keys(CATS);
-  const cant = { EX: 26, CF: 14, BK: 6, RD: 22, GE: 18, CM: 32, CV: 38 };
-  const usados = {}; BIENES.forEach(b => { usados[b.cat] = (usados[b.cat] || 0) + 1; });
-  keys.forEach(k => {
-    const c = CATS[k];
-    for (let i = (usados[k] || 0); i < cant[k]; i++) {
-      const seed = (k.charCodeAt(0) * 31 + k.charCodeAt(1) * 17 + i * 7919) % 1000;
-      const esKm = c.unidad === 'km';
-      const medidor = esKm ? 40000 + seed * 180 : 1200 + seed * 14;
-      const intervalo = esKm ? (k === 'CM' ? 15000 : 10000) : (k === 'BK' || k === 'RD' ? 250 : k === 'GE' ? 400 : 500);
-      const desde = Math.round(intervalo * (0.1 + (seed % 83) / 100)); // consumido desde el último service
-      const estado = seed % 19 === 0 ? 'taller' : seed % 11 === 0 ? 'alquilado' : 'operativo';
-      const venc = new Date(2026, 7 + (seed % 11), 1 + (seed % 27));
-      BIENES.push({
-        id: k + '-' + String(i + 1).padStart(3, '0'), cat: k,
-        modelo: c.marcas[seed % c.marcas.length], anio: 2014 + (seed % 11),
-        obra: OBRAS[seed % OBRAS.length], estado, medidor,
-        plan: { intervalo, ultimo: medidor - desde },
-        docs: [{ t: esKm ? 'VTV' : 'Seguro técnico', v: venc }],
-        bitacora: [{ f: new Date(2026, 6, 1 + (seed % 28)), tipo: 'Service',
-          det: 'Service según plan (' + fmtN.format(medidor - desde) + ' ' + c.unidad + ')',
-          por: 'Taller Mitre', costo: 250000 + (seed % 9) * 90000 }],
-      });
-    }
-  });
-})();
+const BIENES = PARQUE.map(p => ({
+  id: p.id, cat: p.cat,
+  modelo: ((p.marca + ' ' + (p.modelo || '')).trim()) || p.desc || p.clas || '',
+  clas: p.clas, desc: p.desc, dominio: p.dom, resp: p.resp,
+  anio: p.anio || '', obra: p.tit || 'Sin titularidad', estado: p.estado || 'operativo', obs: p.obs || '',
+  medidor: null, plan: null,
+  docs: p.vig ? [{ t: ('Seguro ' + (p.aseg || '')).trim(), v: new Date(p.vig[0], p.vig[1] - 1, p.vig[2]) }] : [],
+  bitacora: [],
+}));
+const OBRAS = [...new Set(BIENES.map(b => b.obra))].sort();
 
-let OTS = [
-  { id: 'OT-0231', bien: 'CF-003', tipo: 'Correctivo', det: 'Recalentamiento de transmisión. Desarme, diagnóstico y reparación.', estado: 'En curso', f: new Date(2026, 7, 6) },
-  { id: 'OT-0230', bien: 'CM-021', tipo: 'Preventivo', det: 'Turno de VTV antes del 20/08. Coordinar con logística.', estado: 'Pendiente', f: new Date(2026, 7, 10) },
-  { id: 'OT-0229', bien: 'EX-007', tipo: 'Preventivo', det: 'Service 11.200 hs vencido. Programar en obra COTO con lubricador móvil.', estado: 'Pendiente', f: new Date(2026, 7, 9) },
-  { id: 'OT-0227', bien: 'GE-004', tipo: 'Correctivo', det: 'Recarga y reposición de matafuegos vencidos en sala de grupo.', estado: 'Pendiente', f: new Date(2026, 7, 8) },
-  { id: 'OT-0224', bien: 'BK-002', tipo: 'Preventivo', det: 'Service 2.200 hs con servicio oficial Brokk.', estado: 'Cerrada', f: new Date(2026, 6, 22) },
-];
-let otSeq = 232;
+let OTS = [];
+let otSeq = 1;
 
 /* ============ Lógica de alertas ============ */
 function alertasDe(b) {
   const out = [];
-  const restante = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
-  const u = CATS[b.cat].unidad;
-  if (restante <= 0) out.push({ sev: 'crit', txt: 'Service vencido hace ' + fmtN.format(-restante) + ' ' + u });
-  else if (restante <= b.plan.intervalo * 0.12) out.push({ sev: 'warn', txt: 'Service en ' + fmtN.format(restante) + ' ' + u });
+  if (b.plan && b.medidor != null) {
+    const restante = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
+    const u = CATS[b.cat].unidad;
+    if (restante <= 0) out.push({ sev: 'crit', txt: 'Service vencido hace ' + fmtN.format(-restante) + ' ' + u });
+    else if (restante <= b.plan.intervalo * 0.12) out.push({ sev: 'warn', txt: 'Service en ' + fmtN.format(restante) + ' ' + u });
+  }
   b.docs.forEach(d => {
     const dd = dias(d.v);
     if (dd < 0) out.push({ sev: 'crit', txt: d.t + ' vencido el ' + fecha(d.v) });
@@ -322,26 +237,25 @@ function vTablero() {
   const conAlerta = BIENES.map(b => ({ b, al: alertasDe(b) })).filter(x => x.al.length);
   const crits = conAlerta.filter(x => x.al.some(a => a.sev === 'crit'));
   const enTaller = BIENES.filter(b => b.estado === 'taller').length;
-  const gasto = BIENES.flatMap(b => b.bitacora).filter(e => (HOY - e.f) / 864e5 <= 30)
-    .reduce((s, e) => s + e.costo, 0);
-  const top = conAlerta.sort((a, b2) => (b2.al.some(a2 => a2.sev === 'crit') ? 1 : 0) - (a.al.some(a2 => a2.sev === 'crit') ? 1 : 0)).slice(0, 9);
+  const sinSeguro = BIENES.filter(b => !b.docs.length).length;
+  const top = conAlerta.sort((a, b2) => (b2.al.some(a2 => a2.sev === 'crit') ? 1 : 0) - (a.al.some(a2 => a2.sev === 'crit') ? 1 : 0)).slice(0, 12);
   return '<h2>Hoy, ' + fecha(HOY) + '</h2>' +
     '<div class="kpis">' +
     kpi(BIENES.length, 'Bienes en el parque') +
     kpi(crits.length, 'Alertas críticas', 'crit') +
     kpi(conAlerta.length - crits.length, 'Por vencer (30 días)', 'warn') +
     kpi(enTaller, 'En taller') +
-    kpi(fmt$.format(gasto), 'Gasto últimos 30 días') +
+    kpi(sinSeguro, 'Sin seguro informado', 'warn') +
     '</div>' +
-    '<h2>Requiere atención</h2><p class="sub">Services vencidos o próximos y documentación por vencer. Tocá una fila para abrir la ficha.</p>' +
-    '<div class="card">' + top.map(({ b, al }) => {
+    '<h2>Requiere atención</h2><p class="sub">Documentación vencida o por vencer según el listado de bienes de uso. Tocá una fila para abrir la ficha.</p>' +
+    '<div class="card">' + (top.length ? top.map(({ b, al }) => {
       const a = al[0];
       return '<div class="alert-row" onclick="abrir(\'' + b.id + '\')">' +
         '<span class="sev ' + a.sev + '"></span>' +
         '<div><b>' + b.id + ' · ' + b.modelo + '</b><div class="d">' + al.map(x => x.txt).join(' · ') + '</div></div>' +
         '<div class="who"><span class="pill na">' + b.obra + '</span></div></div>';
-    }).join('') + '</div>' +
-    '<p class="note">Mostrando 9 de ' + conAlerta.length + ' bienes con avisos. El listado completo está en <b>Parque</b>.</p>';
+    }).join('') : '<div class="alert-row"><div class="d">Sin alertas hoy.</div></div>') + '</div>' +
+    '<p class="note">Mostrando ' + Math.min(12, conAlerta.length) + ' de ' + conAlerta.length + ' bienes con avisos. El listado completo está en <b>Parque</b>.</p>';
 }
 function kpi(n, l, cls) {
   return '<div class="kpi ' + (cls || '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>';
@@ -353,69 +267,80 @@ function vParque() {
     (!filtros.cat || b.cat === filtros.cat) &&
     (!filtros.estado || b.estado === filtros.estado) &&
     (!filtros.obra || b.obra === filtros.obra) &&
-    (!filtros.q || (b.id + ' ' + b.modelo).toLowerCase().includes(filtros.q.toLowerCase())));
-  return '<h2>Parque de bienes</h2><p class="sub">' + lista.length + ' de ' + BIENES.length + ' bienes</p>' +
+    (!filtros.q || (b.id + ' ' + b.modelo + ' ' + (b.desc || '') + ' ' + (b.dominio || '')).toLowerCase().includes(filtros.q.toLowerCase())));
+  return '<h2>Parque de bienes</h2><p class="sub">' + lista.length + ' de ' + BIENES.length + ' bienes (importados del LISTADO DE BIENES DE USO)</p>' +
     '<div class="filters">' +
     '<select onchange="setF(\'cat\',this.value)"><option value="">Todas las categorías</option>' +
-    opc(Object.entries(CATS).map(([k, c]) => [k, c.nombre + 's']), filtros.cat) + '</select>' +
+    opc(Object.entries(CATS).filter(([k]) => BIENES.some(b => b.cat === k)).map(([k, c]) => [k, c.nombre]), filtros.cat) + '</select>' +
     '<select onchange="setF(\'estado\',this.value)"><option value="">Todos los estados</option>' +
-    opc([['operativo', 'Operativo'], ['taller', 'En taller'], ['alquilado', 'Alquilado']], filtros.estado) + '</select>' +
-    '<select onchange="setF(\'obra\',this.value)"><option value="">Todas las obras</option>' +
+    opc([['operativo', 'Operativo'], ['taller', 'En taller']], filtros.estado) + '</select>' +
+    '<select onchange="setF(\'obra\',this.value)"><option value="">Todas las titularidades</option>' +
     opc(OBRAS.map(o => [o, o]), filtros.obra) + '</select>' +
-    '<input placeholder="Buscar por interno o modelo… (ej. EX-007)" value="' + filtros.q + '" oninput="setF(\'q\',this.value)">' +
+    '<input placeholder="Buscar por código, dominio o descripción… (ej. MAQ032)" value="' + filtros.q + '" oninput="setF(\'q\',this.value)">' +
     '</div>' +
-    '<div class="twrap"><table><thead><tr><th>Interno</th><th>Bien</th><th>Obra / ubicación</th>' +
-    '<th>Medidor</th><th>Próx. service</th><th>Estado</th></tr></thead><tbody>' +
-    lista.slice(0, 60).map(b => {
-      const u = CATS[b.cat].unidad, rest = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
+    '<div class="twrap"><table><thead><tr><th>Interno</th><th>Bien</th><th>Titularidad</th>' +
+    '<th>Medidor</th><th>Seguro</th><th>Estado</th></tr></thead><tbody>' +
+    lista.slice(0, 80).map(b => {
+      const u = CATS[b.cat].unidad || '';
       const al = alertasDe(b);
+      const doc = b.docs[0];
+      const segTxt = doc ? fecha(doc.v) : '—';
       const est = b.estado === 'taller' ? '<span class="pill warn">En taller</span>' :
         al.some(a => a.sev === 'crit') ? '<span class="pill crit">Crítico</span>' :
-        al.length ? '<span class="pill warn">Aviso</span>' :
-        b.estado === 'alquilado' ? '<span class="pill na">Alquilado</span>' : '<span class="pill ok">Operativo</span>';
+        al.length ? '<span class="pill warn">Aviso</span>' : '<span class="pill ok">Operativo</span>';
       return '<tr onclick="abrir(\'' + b.id + '\')"><td class="interno">' + b.id + '</td>' +
-        '<td>' + b.modelo + ' <span class="mono" style="color:var(--muted)">' + b.anio + '</span></td>' +
+        '<td>' + (b.clas ? b.clas + ' · ' : '') + b.modelo + (b.anio ? ' <span class="mono" style="color:var(--muted)">' + b.anio + '</span>' : '') + '</td>' +
         '<td>' + b.obra + '</td>' +
-        '<td class="mono">' + fmtN.format(b.medidor) + ' ' + u + '</td>' +
-        '<td class="mono">' + (rest <= 0 ? '<span style="color:var(--crit);font-weight:700">vencido</span>' : 'en ' + fmtN.format(rest) + ' ' + u) + '</td>' +
+        '<td class="mono">' + (b.medidor != null ? fmtN.format(b.medidor) + ' ' + u : '—') + '</td>' +
+        '<td class="mono">' + (doc && dias(doc.v) < 0 ? '<span style="color:var(--crit);font-weight:700">' + segTxt + '</span>' : segTxt) + '</td>' +
         '<td>' + est + '</td></tr>';
     }).join('') + '</tbody></table></div>' +
-    (lista.length > 60 ? '<p class="note">Mostrando los primeros 60 resultados; afiná los filtros para ver el resto.</p>' : '');
+    (lista.length > 80 ? '<p class="note">Mostrando los primeros 80 resultados; afiná los filtros para ver el resto.</p>' : '');
 }
 function setF(k, v) { filtros[k] = v; render(); }
 
 function vFicha(b) {
-  const u = CATS[b.cat].unidad, al = alertasDe(b);
-  const prox = b.plan.ultimo + b.plan.intervalo, rest = prox - b.medidor;
-  const pct = Math.min(100, Math.round((b.medidor - b.plan.ultimo) / b.plan.intervalo * 100));
-  const cls = rest <= 0 ? 'crit' : rest <= b.plan.intervalo * 0.12 ? 'warn' : '';
+  const u = CATS[b.cat].unidad || '';
+  const al = alertasDe(b);
+  let planHtml;
+  if (b.plan && b.medidor != null) {
+    const prox = b.plan.ultimo + b.plan.intervalo, rest = prox - b.medidor;
+    const pct = Math.min(100, Math.round((b.medidor - b.plan.ultimo) / b.plan.intervalo * 100));
+    const cls = rest <= 0 ? 'crit' : rest <= b.plan.intervalo * 0.12 ? 'warn' : '';
+    planHtml = '<div class="plan"><div class="row"><span>Service cada ' + fmtN.format(b.plan.intervalo) + ' ' + u + '</span>' +
+      '<span class="mono">' + (rest <= 0 ? 'vencido hace ' + fmtN.format(-rest) + ' ' + u : 'faltan ' + fmtN.format(rest) + ' ' + u) + '</span></div>' +
+      '<div class="bar"><i class="' + cls + '" style="width:' + pct + '%"></i></div>' +
+      '<div class="row" style="margin-top:4px;color:var(--muted);font-size:12px"><span>último: ' + fmtN.format(b.plan.ultimo) + ' ' + u + '</span><span>próximo: ' + fmtN.format(prox) + ' ' + u + '</span></div></div>';
+  } else {
+    planHtml = '<p class="note" style="margin:0">Sin plan preventivo cargado todavía. El siguiente paso del sistema es definir el plan de cada bien (cada X horas, X km o por calendario) y registrar la primera lectura del medidor.</p>';
+  }
   const total = b.bitacora.reduce((s, e) => s + e.costo, 0);
   return '<button class="back" onclick="ir(\'' + (vista === 'tablero' ? 'tablero' : 'parque') + '\')">&larr; Volver</button>' +
     '<div class="card"><div class="ficha-head">' +
     '<div class="ic">' + b.cat + '</div>' +
-    '<div><h3>' + b.id + ' · ' + b.modelo + '</h3>' +
-    '<div class="meta"><span>' + CATS[b.cat].nombre + ' · ' + b.anio + '</span><span>' + b.obra + '</span>' +
-    '<span class="mono">' + fmtN.format(b.medidor) + ' ' + u + '</span>' +
-    '<span>Mantenimiento acumulado: <b>' + fmt$.format(total) + '</b></span></div>' +
+    '<div><h3>' + b.id + ' · ' + (b.clas ? b.clas + ' ' : '') + b.modelo + '</h3>' +
+    '<div class="meta"><span>' + CATS[b.cat].nombre + (b.anio ? ' · ' + b.anio : '') + '</span><span>' + b.obra + '</span>' +
+    (b.dominio ? '<span class="mono">Dominio ' + b.dominio + '</span>' : '') +
+    (b.resp ? '<span>Responsable: ' + b.resp + '</span>' : '') +
+    '<span class="mono">' + (b.medidor != null ? fmtN.format(b.medidor) + ' ' + u : 'sin lectura de medidor') + '</span>' +
+    (total ? '<span>Mantenimiento acumulado: <b>' + fmt$.format(total) + '</b></span>' : '') + '</div>' +
     (al.length ? '<div style="margin-top:8px">' + al.map(a => '<span class="pill ' + a.sev + '" style="margin-right:6px">' + a.txt + '</span>').join('') + '</div>' : '') +
+    (b.obs ? '<p class="note" style="margin:6px 0 0">' + b.obs + '</p>' : '') +
     '</div></div>' +
-    '<div class="fgrid"><div class="fcol"><h4>Plan preventivo</h4>' +
-    '<div class="plan"><div class="row"><span>Service cada ' + fmtN.format(b.plan.intervalo) + ' ' + u + '</span>' +
-    '<span class="mono">' + (rest <= 0 ? 'vencido hace ' + fmtN.format(-rest) + ' ' + u : 'faltan ' + fmtN.format(rest) + ' ' + u) + '</span></div>' +
-    '<div class="bar"><i class="' + cls + '" style="width:' + pct + '%"></i></div>' +
-    '<div class="row" style="margin-top:4px;color:var(--muted);font-size:12px"><span>último: ' + fmtN.format(b.plan.ultimo) + ' ' + u + '</span><span>próximo: ' + fmtN.format(prox) + ' ' + u + '</span></div></div>' +
+    '<div class="fgrid"><div class="fcol"><h4>Plan preventivo</h4>' + planHtml +
     '</div><div class="fcol"><h4>Documentación</h4>' +
-    b.docs.map(d => {
+    (b.docs.length ? b.docs.map(d => {
       const dd = dias(d.v);
       const p = dd < 0 ? '<span class="pill crit">vencido</span>' : dd <= 30 ? '<span class="pill warn">' + dd + ' días</span>' : '<span class="pill ok">vigente</span>';
       return '<div class="doc"><span>' + d.t + '</span><span class="mono">' + fecha(d.v) + ' &nbsp;' + p + '</span></div>';
-    }).join('') + '</div></div>' +
+    }).join('') : '<p class="note" style="margin:0">Sin documentación con vencimiento informada en el listado.</p>') + '</div></div>' +
     '<h4 style="margin:0;padding:14px 16px 0;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Bitácora</h4>' +
-    '<ul class="tl">' + b.bitacora.map(e =>
+    '<ul class="tl">' + (b.bitacora.length ? b.bitacora.map(e =>
       '<li class="' + (e.tipo === 'Falla' ? 'crit' : '') + '">' +
       (e.costo ? '<span class="cost">' + fmt$.format(e.costo) + '</span>' : '') +
       '<div class="when">' + fecha(e.f) + ' · ' + e.tipo + '</div>' +
-      '<div>' + e.det + '</div><div class="by">' + e.por + '</div></li>').join('') +
+      '<div>' + e.det + '</div><div class="by">' + e.por + '</div></li>').join('') :
+      '<li><div class="d" style="color:var(--muted)">Sin registros todavía. Los services, reparaciones, fallas y lecturas van a ir quedando acá, con responsable y costo.</div></li>') +
     '</ul></div>';
 }
 
@@ -423,7 +348,7 @@ function vTaller() {
   const orden = { 'Pendiente': 0, 'En curso': 1, 'Cerrada': 2 };
   const lista = [...OTS].sort((a, b) => orden[a.estado] - orden[b.estado] || b.f - a.f);
   return '<h2>Órdenes de trabajo</h2><p class="sub">El taller trabaja sobre esta cola. Cada OT cerrada queda registrada en la bitácora del bien.</p>' +
-    '<div class="card">' + lista.map(o => {
+    '<div class="card">' + (lista.length ? lista.map(o => {
       const b = buscar(o.bien);
       const p = o.estado === 'Pendiente' ? 'crit' : o.estado === 'En curso' ? 'warn' : 'ok';
       const btn = o.estado === 'Pendiente' ? '<button class="btn ghost" onclick="avanzar(\'' + o.id + '\')">Iniciar</button>' :
@@ -432,7 +357,7 @@ function vTaller() {
         '<div class="what"><b style="cursor:pointer" onclick="abrir(\'' + o.bien + '\')">' + o.bien + (b ? ' · ' + b.modelo : '') + '</b>' +
         '<div class="d">' + o.tipo + ' · ' + fecha(o.f) + ' — ' + o.det + '</div></div>' +
         '<span class="pill ' + p + '">' + o.estado + '</span>' + btn + '</div>';
-    }).join('') + '</div>';
+    }).join('') : '<div class="ot"><div class="d" style="color:var(--muted)">Sin órdenes de trabajo. Reportá una falla desde <b>Parte de obra</b> y la primera OT aparece acá.</div></div>') + '</div>';
 }
 function avanzar(id) {
   const o = OTS.find(x => x.id === id); if (!o) return;
@@ -451,7 +376,7 @@ function avanzar(id) {
 
 let modoParte = 'lectura';
 function vObra() {
-  const opts = BIENES.slice(0, 40).map(b => '<option value="' + b.id + '">' + b.id + ' · ' + b.modelo + '</option>').join('');
+  const opts = BIENES.map(b => '<option value="' + b.id + '">' + b.id + ' · ' + (b.clas ? b.clas + ' ' : '') + b.modelo + '</option>').join('');
   return '<h2>Parte diario desde la obra</h2>' +
     '<p class="sub">Así lo ve un operador o capataz en el celular: 30 segundos para informar horas o avisar una falla.</p>' +
     '<div class="phone"><div class="ph-head">MITRE · Parte de obra<small>' + fecha(HOY) + '</small></div>' +
@@ -464,21 +389,20 @@ function vObra() {
       : '<div><label for="p-det">Qué pasó</label><textarea id="p-det" rows="3" placeholder="ej. Pérdida de hidráulico en el brazo, la máquina quedó parada" required></textarea></div>') +
     '<button class="btn primary" type="submit">' + (modoParte === 'lectura' ? 'Enviar lectura' : 'Enviar reporte de falla') + '</button>' +
     '</form></div>' +
-    '<p class="note" style="text-align:center">Una lectura actualiza el medidor y puede disparar la alerta de service.<br>Una falla crea automáticamente una OT en la cola del taller.</p>';
+    '<p class="note" style="text-align:center">Una lectura actualiza el medidor del bien.<br>Una falla crea automáticamente una OT en la cola del taller.</p>';
 }
 function enviarParte(ev) {
   ev.preventDefault();
   const b = buscar($('#p-bien').value); if (!b) return;
   if (modoParte === 'lectura') {
     const v = parseInt($('#p-lect').value, 10);
-    if (!isFinite(v) || v < b.medidor) { toast('La lectura debe ser mayor a la actual (' + fmtN.format(b.medidor) + ')'); return; }
+    if (!isFinite(v) || (b.medidor != null && v < b.medidor)) { toast('La lectura debe ser mayor a la actual (' + fmtN.format(b.medidor) + ')'); return; }
     b.medidor = v;
-    b.bitacora.unshift({ f: HOY, tipo: 'Lectura', det: 'Lectura ' + fmtN.format(v) + ' ' + CATS[b.cat].unidad + ' (parte de obra)', por: 'Parte de obra', costo: 0 });
-    const rest = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
-    toast(rest <= 0 ? 'Lectura cargada. ¡Atención: el service de ' + b.id + ' quedó vencido!' : 'Lectura cargada en la bitácora de ' + b.id);
+    b.bitacora.unshift({ f: HOY, tipo: 'Lectura', det: 'Lectura ' + fmtN.format(v) + ' ' + (CATS[b.cat].unidad || '') + ' (parte de obra)', por: 'Parte de obra', costo: 0 });
+    toast('Lectura cargada en la bitácora de ' + b.id);
   } else {
     const det = $('#p-det').value.trim(); if (!det) return;
-    const ot = { id: 'OT-0' + (otSeq++), bien: b.id, tipo: 'Correctivo', det, estado: 'Pendiente', f: HOY };
+    const ot = { id: 'OT-' + String(otSeq++).padStart(4, '0'), bien: b.id, tipo: 'Correctivo', det, estado: 'Pendiente', f: HOY };
     OTS.unshift(ot);
     b.bitacora.unshift({ f: HOY, tipo: 'Falla', det: 'Reporte desde obra: ' + det, por: 'Parte de obra', costo: 0 });
     toast('Falla reportada. Se creó la ' + ot.id + ' en la cola del taller.');
