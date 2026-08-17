@@ -143,6 +143,29 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion: reduce){#toast{transition:none}}
   .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+  .subtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .subtabs button{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);
+    border-radius:99px;padding:6px 14px;font:600 12.5px inherit;font-family:inherit;cursor:pointer}
+  .subtabs button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  details.wk{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);margin-bottom:10px}
+  details.wk summary{cursor:pointer;font-weight:700;padding:12px 16px;font-size:14.5px;list-style-position:inside}
+  details.wk summary .tag{float:right;font-weight:600;font-size:11px;color:var(--muted)}
+  details.wk .bd{padding:0 18px 16px;font-size:13.5px}
+  .wk-h{margin:14px 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+  details.wk ul{margin:4px 0;padding-left:20px}
+  details.wk li{margin-bottom:3px}
+  .seg3{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;flex:none}
+  .seg3 button{border:none;background:var(--surface);padding:6px 10px;font:700 11.5px inherit;font-family:inherit;color:var(--muted);cursor:pointer}
+  .seg3 button.ok.on{background:var(--ok);color:#fff}
+  .seg3 button.falla.on{background:var(--crit);color:#fff}
+  .seg3 button.na.on{background:var(--chip);color:var(--ink)}
+  .chk-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 16px;border-top:1px solid var(--line);font-size:13.5px}
+  .chk-row:first-of-type{border-top:none}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+  .uso-in{width:100px}
+  .cierre{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--surface2);border-top:1px solid var(--line);width:100%}
+  .cierre label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 </style>
 
 <div class="hazard"></div>
@@ -169,11 +192,12 @@ const fmt$ = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS'
 const fmtN = new Intl.NumberFormat('es-AR');
 const fecha = d => d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const dias = d => Math.floor((d - HOY) / 864e5);
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 const CATS = {
   MAQ: { nombre: 'Maquinaria',       unidad: 'hs' },
   EQU: { nombre: 'Grupos y equipos', unidad: 'hs' },
-  ACC: { nombre: 'Accesorios',       unidad: null },
+  ACC: { nombre: 'Accesorios',       unidad: 'hs' },
   HER: { nombre: 'Herramientas',     unidad: null },
   CAM: { nombre: 'Camiones',         unidad: 'km' },
   CV:  { nombre: 'Camionetas',       unidad: 'km' },
@@ -184,24 +208,115 @@ const CATS = {
 
 const PARQUE = [{"id":"ACC003","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"WECAN","modelo":"","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC004","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"KRUPP","modelo":"HM-350","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC006","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"STANLEY","modelo":"","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACCESORIO DE BOBCATS","estado":"taller"},{"id":"ACC007","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA COMBICUTTER","marca":"ATLAS COPCO","modelo":"CC-250","anio":"2008","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO PROVINCIA PRENDA  - FOGABA-PCIA","estado":"operativo"},{"id":"ACC008","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"ATLAS COPCO","modelo":"DP-2000","anio":"2008","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC009","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"KRUPP","modelo":"CC-1500 R","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC010","cat":"ACC","clas":"PALA","desc":"ACC  PALA RASTRA","marca":"GENOVESE","modelo":"PALA DE ARRASTRE","anio":"2000","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC011","cat":"ACC","clas":"PERFORADOR","desc":"PERFORADOR HIDRAULICO (HOYADORA)","marca":"LOWE","modelo":"1200-EH","anio":"1997","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC013","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"","modelo":"","anio":"1997","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO PRENDABLE","estado":"operativo"},{"id":"ACC014","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-500","anio":"2015","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"SE CAMBIO POR EL HP350(COMPRA ANULADA) A PRENDAR","estado":"operativo"},{"id":"ACC015","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"INDECO","modelo":"JRP-850","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC016","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-2500","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC017","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-2500","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC018","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"INDECO","modelo":"HP-200","anio":"2016","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC019","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO EXTENSOR","marca":"COSBEN","modelo":"PBS-35.80","anio":"2017","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC020","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DM-C10","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"EX LEASING BANCO ITAU A PRENDAR","estado":"operativo"},{"id":"ACC021","cat":"ACC","clas":"CIZALLA","desc":"MORDAZA - CIZALLA","marca":"DAEMO","modelo":"DMP-200Q","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC022","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DOOSAN","modelo":"RC-22","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC023","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"PALFINGER","modelo":"PK-42502","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"24/6/2019 SE COLOCO AL CAMION AD 137 IS PRENDA - BANCO PROVINCIA","estado":"operativo"},{"id":"ACC024","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"CHICAGO PNEUMATIC","modelo":"RX-3","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"INCLUIDO EN MAQ041","estado":"operativo"},{"id":"ACC025","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B360","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"FINALIZA EN JULIO 2023 NO PRENDABLE-LEASING ITAU","estado":"operativo"},{"id":"ACC026","cat":"ACC","clas":"CRIBA","desc":"CUCHARA DE CRIBADO","marca":"MBCRUSHER","modelo":"MB-S18 S4","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":", A PRENDAR","estado":"operativo"},{"id":"ACC027","cat":"ACC","clas":"FRESADORA","desc":"FRESADORA","marca":"MBCRUSHER","modelo":"MB-R500","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC028","cat":"ACC","clas":"PINZA DE MAQUINA","desc":"PINZA SELECCIONADORA","marca":"MBCRUSHER","modelo":"MB-G1200 S2","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC029","cat":"ACC","clas":"PINZA DE MAQUINA","desc":"PINZA SELECCIONADORA","marca":"MBCRUSHER","modelo":"MB-G900 S2","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC030","cat":"ACC","clas":"TRITURADORA","desc":"TRITURADORA MANDIBULA","marca":"MBCRUSHER","modelo":"BF80-3","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC031","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B230","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC032","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ031 NO PRENDABLE","estado":"operativo"},{"id":"ACC033","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ033 NO PRENDABLE","estado":"operativo"},{"id":"ACC034","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R220","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ048","estado":"operativo"},{"id":"ACC035","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"AMCO VEBA","modelo":"V815 3S","anio":"2011","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"ACC DE KFV 108 CHASIS PRENDA - BANCO PROVINCIA","estado":"operativo"},{"id":"ACC036","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DAEMO","modelo":"B250","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC037","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"SOOSAN","modelo":"SQ120","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC038","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"SOOSAN","modelo":"SQ120","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC039","cat":"ACC","clas":"IMAN","desc":"IMAN","marca":"DYNASET","modelo":"HMAG PRO 1200-49-K","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC040","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R260","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ046 A PRENDAR","estado":"operativo"},{"id":"ACC041","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"R260","anio":"2020","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ050 A PRENDAR","estado":"operativo"},{"id":"ACC042","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ054 A PRENDAR","estado":"operativo"},{"id":"ACC043","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DX-380","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ042 A PRENDAR","estado":"operativo"},{"id":"ACC044","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DMC330R","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"A PRENDAR","estado":"operativo"},{"id":"ACC045","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"DARDA","modelo":"MC300","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC046","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC440","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"PROVINCIA","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC047","cat":"ACC","clas":"BARREDORA","desc":"BARREDORA","marca":"BOBCAT","modelo":"72 SWEEPER","anio":"2015","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC048","cat":"ACC","clas":"CIZALLA","desc":"MORDAZA - CIZALLA","marca":"DAEMO","modelo":"DMP300Q","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC049","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DAEMO","modelo":"DRP335","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC050","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ059(NO ESTABA EN LISTADO)","estado":"operativo"},{"id":"ACC051","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE MAQ060(NO ESTABA EN LISTADO)","estado":"operativo"},{"id":"ACC052","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC340","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC053","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"TREVI BENNE","modelo":"FR18","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC054","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO LARGO DEMOLICION","marca":"DOOSAN","modelo":"DX340LCA-K","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"BANCO DE LA NACION ARGENTINA 30-50001091-2 EN CARACTER DE ACREEDOR PRENDARIO.- PRENDA BANCO NACION","estado":"operativo"},{"id":"ACC055","cat":"ACC","clas":"CIZALLA","desc":"TANK CUTTER","marca":"DARDA","modelo":"TC120","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC056","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"TREVI BENNE","modelo":"FR18","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC057","cat":"ACC","clas":"BRAZO EXTENSOR","desc":"BRAZO LARGO DEMOLICION","marca":"DOOSAN","modelo":"DX340LCA-K","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC058","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DARDA","modelo":"CC480","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"NO ESTABA EN EL LISTADO","estado":"operativo"},{"id":"ACC059","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC060","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"HYUNDAI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC061","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DX-380","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC062","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC063","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC064","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"ACOPLE RAPIDO","marca":"DOOSAN","modelo":"DXQ2","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC065","cat":"ACC","clas":"HIDROGRUA","desc":"HIDROGRUA","marca":"HIDROGRUBERT","modelo":"5000","anio":"2009","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"ACC DE HWN829","estado":"operativo"},{"id":"ACC066","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 900 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC067","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 200 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC068","cat":"ACC","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"DEHACO","modelo":"IBEX 320 GS","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC069","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA","marca":"DEHACO","modelo":"MCR350","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC070","cat":"ACC","clas":"COMPACTADOR","desc":"COMPACTADOR HIDRAULICO","marca":"DEHACO","modelo":"HYRAX 175","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC071","cat":"ACC","clas":"TRITURADORA","desc":"TRITURADOR FORESTAL","marca":"FAE","modelo":"UML/S/EX/VT","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC072","cat":"ACC","clas":"MORDAZA","desc":"MORDAZA PULVERIZADORA","marca":"SOCOMEC","modelo":"SFB800","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC073","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"METALMEC","modelo":"UM 2000","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC074","cat":"ACC","clas":"UÑA","desc":"UÑA LEVANTA PALLETS","marca":"METALMEC","modelo":"UM 2000","anio":"2023","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC075","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"DEHACO","modelo":"SH180R","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC076","cat":"ACC","clas":"CUCHARA ASPIRADORA","desc":"CUCHARA ASPIRADORA","marca":"DYNASET","modelo":"HRVB-830-90","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC077","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB105","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC078","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB155","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC079","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB155","anio":"2022","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC080","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB205","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC081","cat":"ACC","clas":"MARTILLO BROKK","desc":"MARTILLO BROKK","marca":"BROKK","modelo":"BHB305","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC087","cat":"ACC","clas":"MARTILLO HIDRAULICO","desc":"MARTILLO HIDRAULICO","marca":"SOCOMEC","modelo":"DMS400","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC088","cat":"ACC","clas":"COMPACTADOR HIDRÁULICO","desc":"COMPACTADOR HIDRÁULICO","marca":"SOCOMEC","modelo":"SPV 610","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"ACC089","cat":"ACC","clas":"ACOPLE RAPIDO","desc":"","marca":"","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC090","cat":"ACC","clas":"CIZALLA","desc":"CIZALLA","marca":"TREVI BENNE","modelo":"CS20RS","anio":"2025","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"LIFE SEGUROS","vig":[2026,8,6],"resp":"","obs":"","estado":"operativo"},{"id":"A089RBT","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"CZ - Z MAX 200","anio":"2018","dom":"A089RBT","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"HECTOR OMAR MICHIA","obs":"","estado":"operativo"},{"id":"A191OKK","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"Z MAX 200","anio":"2023","dom":"A191OKK","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"SERGIO AGUIRRE, RAUL GONZALEZ","obs":"CONDUCTOR DESIGNADO: MEJORAMIENTO BARRIO 31","estado":"operativo"},{"id":"KFV108","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ATEGO 1725","anio":"2011","dom":"KFV108","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"CON HIDROGRUA ACC0035","estado":"operativo"},{"id":"AB266SV","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHEVROLET","modelo":"MONTANA 1.8 LS PACK","anio":"2017","dom":"AB266SV","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AB844NH","cat":"CV","clas":"Camioneta","desc":"SUV","marca":"CHEVROLET","modelo":"TRACKER 1.8 LTZ 4X2 L/17","anio":"2017","dom":"AB844NH","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CRISTIAN LINARES","obs":"","estado":"operativo"},{"id":"NFF193","cat":"CAM","clas":"Camion","desc":"CHASIS C/CAJA VOLCADORA","marca":"MERCEDES BENZ","modelo":"272-710","anio":"2013","dom":"NFF193","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"AQUINO ALEX","obs":"","estado":"operativo"},{"id":"PAR301","cat":"CAM","clas":"Camion","desc":"CHASIS C/CAB C/CAJA VOLC","marca":"MERCEDES BENZ","modelo":"AXOR 2831 K","anio":"2015","dom":"PAR301","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AD275AO","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"VOLKSWAGEN","modelo":"6Y-AMAROK DC V6 EXTREME 3.0L TDI 4X4 A","anio":"2018","dom":"AD275AO","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"IPPOLITO MIGUEL ANGEL","obs":"","estado":"operativo"},{"id":"AD275AR","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"CHEVROLET","modelo":"ONIX JOY 5P 1.4 N LS MT+","anio":"2018","dom":"AD275AR","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"INSAURRALDE ROCIO","obs":"","estado":"operativo"},{"id":"AD275AS","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"CHEVROLET","modelo":"ONIX JOY 5P 1.4 N LS MT+","anio":"2018","dom":"AD275AS","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"la ultima asignacion fua a Lucia Montañez","obs":"Soledad Lambri lo devolvio. Al7/8 lo utiliza Damore Fabian- obra La Plata","estado":"operativo"},{"id":"AD351PK","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X4 D/C SRX 2.8 TDI 6 A/T","anio":"2018","dom":"AD351PK","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"IPPOLITO MIGUEL","obs":"","estado":"operativo"},{"id":"AD351PL","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X4 D/C SRX 2.8 TDI 6 A/T","anio":"2018","dom":"AD351PL","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MAURINO MAXIMILIANO","obs":"","estado":"operativo"},{"id":"PPP775","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"MERCEDES BENZ","modelo":"VITO 111 CDI","anio":"2016","dom":"PPP775","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PRONESTI CRISTIAN","obs":"","estado":"operativo"},{"id":"AD718YY","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"TOYOTA","modelo":"COROLLA XLI 1.8 6M/T","anio":"2019","dom":"AD718YY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARTIN REPETTO","obs":"","estado":"operativo"},{"id":"AD896WM","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 D/C DX 2.4 TDI 6 M/T","anio":"2019","dom":"AD896WM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GONZALEZ MEZA ANGEL","obs":"04/2020 SE COMPRO A TOYOTA (EX LEASING)","estado":"operativo"},{"id":"AE630AQ","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"TOYOTA","modelo":"ETIOS X 1.5 6MT","anio":"2021","dom":"AE630AQ","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"Cristian Linares","obs":"lo esta comprando Cristian Linares","estado":"operativo"},{"id":"AE704IE","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 DC DX 2.4 TDI 6 MT","anio":"2021","dom":"AE704IE","tit":"SILVA MARIA XIMENA","aseg":"ALLIANZ ARGENTINA","vig":[2025,9,16],"resp":"MARIANI GABRIEL","obs":"SUMA ASEGURDADA: VALOR REPOSICION- VALOR DE REFERENCIA 32,000,000","estado":"operativo"},{"id":"AF300FM","cat":"CV","clas":"Camioneta","desc":"RURAL 4/5 PUERTAS","marca":"VOLKSWAGEN","modelo":"TAOS HIGHLINE 250 TSI AT","anio":"2022","dom":"AF300FM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CAIRONE CRISTINA","obs":"","estado":"operativo"},{"id":"AF615YX","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHANGAN","modelo":"MD201","anio":"2022","dom":"AF615YX","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARCELA VENEGONI","obs":"","estado":"operativo"},{"id":"AF680LC","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2022","dom":"AF680LC","tit":"LEASING SUPERVIELLE","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JORGE VELCHEFF","obs":"","estado":"operativo"},{"id":"AF726YD","cat":"CV","clas":"Camioneta","desc":"PICK UP CABINA SIMPLE","marca":"CHANGAN","modelo":"MD201","anio":"2022","dom":"AF726YD","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JAVIER ARRUE","obs":"","estado":"operativo"},{"id":"AF787ZF","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF787ZF","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"LEANDRO TRISCHLER- IVC","obs":"VTV VIG 31/07/2026 - Cementerio etapa 3 (deberian devolverlo a finales de abril 2026)","estado":"operativo"},{"id":"AF836LM","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF836LM","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"DOLORES  ZULUETA","obs":"CONDUCTOR DESIGNADO- Dolores Zulueta Ivc-  +54 9 2355 48-6896 - VTV VIG 30/06/2026","estado":"operativo"},{"id":"AF836LN","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE BZ","anio":"2023","dom":"AF836LN","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"LEONARDO MARIANI","obs":"Conductor asigando:Dolores Zulueta Ivc-  +54 9 2355 48-6896 - VTV VIG 30/06/2026","estado":"operativo"},{"id":"AF930PU","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"TOYOTA HILUX 4X2 DC DX 2.4 TDI 6MT","anio":"2023","dom":"AF930PU","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"DIKRAN HURMUZ","obs":"CONDUCTOR DESIGNADO:  JAVIER ANTEQUERA","estado":"operativo"},{"id":"AB055ZY","cat":"CAM","clas":"Camion","desc":"CHASIS","marca":"MERCEDES BENZ","modelo":"AXOR 1933 S","anio":"2017","dom":"AB055ZY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PEREYRA HUGO","obs":"ALTA 14/7/2020","estado":"operativo"},{"id":"AG045PL","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"TOYOTA HILUX 4X2 DC DX 2.4 TDI 6MT","anio":"2023","dom":"AG045PL","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"PICCALUGA","obs":"CONDUCTOR DESIGNADO: DIKRAN HURMUZ","estado":"operativo"},{"id":"CNR204","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA SIMPLE STD","anio":"1999","dom":"CNR204","tit":"LOS TOCONES SA","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"CZU145","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"FORD","modelo":"F-14.000","anio":"1999","dom":"CZU145","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GONZALO CARRIZO","obs":"","estado":"operativo"},{"id":"FBG118","cat":"CV","clas":"Camioneta","desc":"CHASIS CON CABINA","marca":"IVECO","modelo":"DAILY 70.12","anio":"2005","dom":"FBG118","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"B20","obs":"","estado":"operativo"},{"id":"FCC370","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA DOBLE DX 2.5 TD","anio":"2005","dom":"FCC370","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"GGL633","cat":"CAM","clas":"Camion","desc":"CAMION","marca":"MERCEDES BENZ","modelo":"1624","anio":"2007","dom":"GGL633","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"TIENE SEMIREMOLQUE SNM 567","estado":"operativo"},{"id":"GXG161","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA Y CON CAJA","marca":"MERCEDES BENZ","modelo":"2423-K","anio":"2008","dom":"GXG161","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CHOFER NUEVO","obs":"","estado":"operativo"},{"id":"HMP376","cat":"CAM","clas":"Camion","desc":"PICK UP","marca":"KIA","modelo":"K2700 L/B S/C","anio":"2008","dom":"HMP376","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MIGUEL SULIER","obs":"","estado":"operativo"},{"id":"HWN829","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"VOLKSWAGEN","modelo":"13180","anio":"2009","dom":"HWN829","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"GALERIA","obs":"CON HIDROGRUA ACC0065","estado":"operativo"},{"id":"IVX079","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"VOLKSWAGEN","modelo":"SURAN 90A","anio":"2010","dom":"IVX079","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"RICCI JORGE","obs":"","estado":"operativo"},{"id":"AD137IR","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"B77 AXOR 3131K","anio":"2018","dom":"AD137IR","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"AQUINO DAVID","obs":"","estado":"operativo"},{"id":"LEL185","cat":"AU","clas":"Auto","desc":"SEDAN 5 PUERTAS","marca":"AUDI","modelo":"A3 SPORTBACK 1.4 T FSI","anio":"2012","dom":"LEL185","tit":"IPPOLITO MIGUEL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"LRR575","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 CABINA DOBLE SRV 3.0 TDI","anio":"2012","dom":"LRR575","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"VICENTE ARGENIO","obs":"","estado":"operativo"},{"id":"LZZ661","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"VOLKSWAGEN","modelo":"AMAROK 2.0 TDI 180 CV 892","anio":"2013","dom":"LZZ661","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"SIN ASIGNACION","obs":"","estado":"operativo"},{"id":"MAD190","cat":"CV","clas":"Camioneta","desc":"FURGON","marca":"CITROEN","modelo":"BERLINGO FURGON 1.4 FULL AM53","anio":"2012","dom":"MAD190","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CESAR ALVAREZ","obs":"","estado":"operativo"},{"id":"MXC936","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"RENAULT","modelo":"NUEVO MASTER L1H1 AA","anio":"2013","dom":"MXC936","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"OBRA EZEIZA","obs":"TRANSFERIDO EL 12/6/2020 DE IPP NESTOR A DM","estado":"operativo"},{"id":"AD137IS","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"B77 AXOR 3131K","anio":"2018","dom":"AD137IS","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"BARRIOS DOMINGO","obs":"24/6/2019 SE COLOCO ACC023 Y EJE(IND. PIOTTO)","estado":"operativo"},{"id":"NSJ419","cat":"CAM","clas":"Furgon","desc":"FURGON","marca":"RENAULT","modelo":"KANGOO CONFORT 1.5 DCI CD AA DA SVT 1P","anio":"2013","dom":"NSJ419","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"NYC895","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 C/S DX PACK 2.5 TDI","anio":"2014","dom":"NYC895","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"TALLER","obs":"","estado":"operativo"},{"id":"AD544NO","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ACCELO 815","anio":"2019","dom":"AD544NO","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"SE AGREGO TANQUE DE COMBUSTIBLE(BERTOTTO)ACCESORIOS OPCIONALES (según detalle) : PESOS 25.000.000,00 TANQUE - TANQUE DE COMBUSTIBLE PESOS 20.000.000,00 OTROS ACCESORIOS - SIST ELEC. DE CTRL DE COMBUSTIB PESOS 5.000.000,00","estado":"operativo"},{"id":"PIK996","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 C/D DX PACK ELECTRICO 2.5 TDI - H3","anio":"2015","dom":"PIK996","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"RIOS HECTOR","obs":"","estado":"operativo"},{"id":"AG045PE","cat":"CAM","clas":"Camion","desc":"CAMION C/VOLCADORA","marca":"MERCEDES BENZ","modelo":"ACCELO 815","anio":"2023","dom":"AG045PE","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"ALEGRE JUAN","obs":"CONDUCTOR DESIGNADO:  JUAN ALEGRE","estado":"operativo"},{"id":"WNS733","cat":"OT","clas":"Semirremolque","desc":"SEMIRREMOLQUE","marca":"PRATI - FRUEHAUF","modelo":"PB-F2-HD","anio":"1971","dom":"WNS733","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"CARRETON","obs":"","estado":"operativo"},{"id":"A193ITW","cat":"MO","clas":"Moto","desc":"TRICICLO","marca":"ZANELLA","modelo":"Z MAX 200","anio":"2023","dom":"A193ITW","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"HECTOR MICHIA","obs":"","estado":"operativo"},{"id":"AG771HY","cat":"AU","clas":"Auto","desc":"TOYOTA A76 YARIS XLS 1,5 CVT","marca":"TOYOTA","modelo":"YARIS XLS 1,5","anio":"2024","dom":"AG771HY","tit":"DEMOLICIONES MITRE SRL","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JOANNA BONES","obs":"(Cementerio etapa 3 (imputacion hasta 15/4/2026 - a partir del 15/4/2026 lo utiliza Joanna Bones - imputar a control de gestion)","estado":"operativo"},{"id":"AH171YB","cat":"OT","clas":"Semirremolque","desc":"BACO  SEMI 1+2 EJES VOLCADOR TRASERO BATEA","marca":"BACO","modelo":"08-SEMI 1+2 EJES VOLCADOR TRASERO BATEA","anio":"2022","dom":"AH171YB","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AG590FZ","cat":"CAM","clas":"Camion","desc":":M. BENZ C AXOR 2544-31 LS TE 6X2 CD","marca":"MERCEDES BENZ","modelo":"C AXOR 2544-31 LS TE 6X2 CD","anio":"2024","dom":"AG590FZ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH171YI","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE CVT BZ","anio":"2025","dom":"AH171YI","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"JIMENA SOLEDAD LAMBRI","obs":"chapa definitiva-06/6/25- NO RODAMIENTO; FECHA DE EMISIÓN 26 de marzo 2025","estado":"operativo"},{"id":"AH171YJ","cat":"AU","clas":"Auto","desc":"SEDAN 4 PUERTAS","marca":"FIAT","modelo":"CRONOS DRIVE 1.3 GSE CVT BZ","anio":"2025","dom":"AH171YJ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"MARTIN BUERO","obs":"chapa definitiva-06/6/25- AH171YJ - Federico D Eboli-  NO RODAMIENTO; FECHA DE EMISIÓN 26 de marzo 2025","estado":"operativo"},{"id":"AH181KQ","cat":"CAM","clas":"Camion","desc":"CHASIS C/CABINA DORMITORIO","marca":"SCANIA","modelo":"P380 B8X4","anio":"2025","dom":"AH181KQ","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"ACCESORIOS CAJA VOLCADORA $ 42.080.000,00","estado":"operativo"},{"id":"AH255LS","cat":"AU","clas":"Auto","desc":"PICK UP","marca":"TOYOTA","modelo":"HILUX 4X2 DC","anio":"2025","dom":"AH255LS","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH320KP","cat":"CAM","clas":"Camion","desc":"CHASI C/CABINA DORMITORIO","marca":"SCANIA","modelo":"P380 B8X4","anio":"2025","dom":"AH320KP","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH559QR","cat":"CAM","clas":"Camion","desc":"CHASIS CON CABINA","marca":"MERCEDES BENZ","modelo":"ACCELO 1016 / 39","anio":"2025","dom":"AH559QR","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"CAJA VOLCADORA - $16.100.240,00","estado":"operativo"},{"id":"AH651YV","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"DFSK","modelo":"C-32","anio":"2025","dom":"AH651YV","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"AH651YW","cat":"CV","clas":"Camioneta","desc":"PICK UP","marca":"DFSK","modelo":"C-32","anio":"2025","dom":"AH651YW","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"FABIAN D AMORE","obs":"","estado":"operativo"},{"id":"AH787XD","cat":"CAM","clas":"Camion","desc":"CAMION CON EQUIPO ROLL OF","marca":"SCANIA","modelo":"G440","anio":"2013","dom":"AH787XD","tit":"","aseg":"SANCOR SEGUROS","vig":[2027,6,1],"resp":"","obs":"","estado":"operativo"},{"id":"HER004","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER005","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER006","cat":"HER","clas":"MARTILLO","desc":"MARTILLO PICADOR","marca":"CETEC","modelo":"M-10 R","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER009","cat":"HER","clas":"MARTILLO","desc":"MARTILLO DEMOLEDOR PARA COMPRESOR","marca":"CETEC","modelo":"","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER011","cat":"HER","clas":"MARTILLO","desc":"MARTILLO DEMOLEDOR PARA COMPRESOR","marca":"SULLAIR","modelo":"MPB90A","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER018","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER020","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER021","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 2000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER034","cat":"HER","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 2000-AVR 220V","anio":"2019","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU045","cat":"HER","clas":"GRUPO ELECTROGENO","desc":"","marca":"GRUPO ELECTROGENO","modelo":"NIWA","anio":"GDW-","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"13-7-2025","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ034","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"SANY","modelo":"SY-135C","anio":"2017","dom":"CHM 89","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"BAJA 18/11/2020 PRENDA BANCO PROVINCIA","estado":"operativo"},{"id":"MAQ051","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2020","dom":"ECF75","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"BAJA - REEMPLAZO POR MAQ054 PRENDA - CREDICOOP","estado":"operativo"},{"id":"HER019","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO ROMPEDOR ELECTRICO","marca":"HILTI","modelo":"TE 3000-AVR 220V","anio":"2018","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"30/8/2018 NO PRENDABLE","estado":"operativo"},{"id":"ACC0003","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"ITALDEM","modelo":"K-1000","anio":"1998","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ062","cat":"MAQ","clas":"MIEXCAVADORA","desc":"MINIEXCAVADORA","marca":"WACKER NEUSON","modelo":"EZ53","anio":"","dom":"WNCE0510JPAL00624","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"NUNCA SE OFICIALIZO LA COMPRA","estado":"operativo"},{"id":"MAQ002","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA PAT","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2012","dom":"DHKCEBACVB0008967","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 702.204,55 161.056,09 USD","estado":"operativo"},{"id":"MAQ003","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA PAT","marca":"DOOSAN","modelo":"DX225 LCA","anio":"2012","dom":"DHKCEBACVB0008968","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 702.204,55 161.056,09 USD","estado":"operativo"},{"id":"MAQ035","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"SANY","modelo":"SY-215C","anio":"2017","dom":"CHM 90","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"VENTA 06-2021 - A LA ESPERA DEL PAGO TOTAL Y TRANSFERENCIA A PRENDAR","estado":"operativo"},{"id":"MAQ013","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA HIDRAULICA","marca":"KOMATSU","modelo":"PC200-8","anio":"2011","dom":"CHM 30","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"VENTA 06-2021 - A LA ESPERA DEL PAGO TOTAL Y TRANSFERENCIA A PRENDAR","estado":"operativo"},{"id":"EQU002","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"GRUPO ELECTROGENO C/TANQUE Y BATERIA","marca":"FENK","modelo":"B S 20 KVA","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 27.787,33 5.937,46 USD","estado":"operativo"},{"id":"EQU013","cat":"MAQ","clas":"COMPRESOR","desc":"COMPRESOR","marca":"SULLAIR","modelo":"185Q-KUB V2403","anio":"2018","dom":"12639","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"10.852,92 USD 116,70 USD","estado":"operativo"},{"id":"EQU032","cat":"MAQ","clas":"COMPRESOR","desc":"MOTOCOMPRESOR","marca":"CHICAGO PNEUMATIC","modelo":"CPC-CPS5.0","anio":"2016","dom":"APP440349","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 759.600,00 18.000,00 USD","estado":"operativo"},{"id":"EQU007","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"GRUPO ELECTROGENO","marca":"FIORI","modelo":"","anio":"","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ031","cat":"MAQ","clas":"EXCAVADORA","desc":"EXCAVADORA","marca":"DOOSAN","modelo":"DX 225 LCA","anio":"2015","dom":"DHBCEBCJCF0050001","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"$ 2.125.200,00 141.680,00 USD","estado":"operativo"},{"id":"MAQ038","cat":"MAQ","clas":"EXCAVADORA","desc":"MINIEXCAVADORA","marca":"BOBCAT","modelo":"E-35","anio":"2016","dom":"DQF79","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ039","cat":"MAQ","clas":"EXCAVADORA","desc":"MINIEXCAVADORA","marca":"BOBCAT","modelo":"E-50","anio":"2017","dom":"DQE73","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"ACC0005","cat":"MAQ","clas":"MARTILLO","desc":"MARTILLO HIDRAULICO","marca":"KRUPP","modelo":"HM-720-1 CS","anio":"1993","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"MAQ055","cat":"MAQ","clas":"CARGADOR FRONTAL","desc":"PALA CARGADORA","marca":"VOLVO","modelo":"L110F","anio":"2011","dom":"CMH01","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER082","cat":"MAQ","clas":"","desc":"ESTACION TOTAL","marca":"LEICA","modelo":"TS01","anio":"2024","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER054","cat":"MAQ","clas":"LASER","desc":"LASER ROTATIVO","marca":"HILTI","modelo":"PR 2-HS A12","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"HER056","cat":"MAQ","clas":"LASER","desc":"LASER ROTATIVO","marca":"HILTI","modelo":"PR 2-HS A12","anio":"2021","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU001","cat":"MAQ","clas":"MOTOBOMBA","desc":"MOTOBOMBA","marca":"HONDA","modelo":"WB-30-XT","anio":"2013","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU006","cat":"MAQ","clas":"COMPRESOR","desc":"MOTOCOMPRESOR","marca":"CETEC","modelo":"DTR 175 A-CJD","anio":"2012","dom":"","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"","estado":"operativo"},{"id":"EQU045","cat":"EQU","clas":"GRUPO ELECTROGENO","desc":"6,5 KVA","marca":"","modelo":"GRUPO ELECTROGENO","anio":"NIWA","dom":"2021","tit":"DEMOLICIONES MITRE SRL","aseg":"","vig":null,"resp":"","obs":"13-7-2025 SMILE BROKER","estado":"operativo"}];
 
-const BIENES = PARQUE.map(p => ({
-  id: p.id, cat: p.cat,
-  modelo: ((p.marca + ' ' + (p.modelo || '')).trim()) || p.desc || p.clas || '',
-  clas: p.clas, desc: p.desc, dominio: p.dom, resp: p.resp,
-  anio: p.anio || '', obra: p.tit || 'Sin titularidad', estado: p.estado || 'operativo', obs: p.obs || '',
-  medidor: null, plan: null,
-  docs: p.vig ? [{ t: ('Seguro ' + (p.aseg || '')).trim(), v: new Date(p.vig[0], p.vig[1] - 1, p.vig[2]) }] : [],
-  bitacora: [],
-}));
+/* Plan preventivo por defecto según tipo de bien (respaldado por la wiki de abajo) */
+function planPara(p) {
+  const c = (p.clas || '').toUpperCase(), m = (p.modelo || '').toUpperCase();
+  if (c.includes('MIEXCAVADORA') || (c.includes('EXCAVADORA') && /E-?35|E-?50|EZ ?53/.test(m))) return { intervalo: 250, tipo: 'Miniexcavadora' };
+  if (c.includes('EXCAVADORA')) return { intervalo: 500, tipo: 'Excavadora' };
+  if (c.includes('CARGADOR')) return { intervalo: 500, tipo: 'Cargador frontal' };
+  if (c.includes('COMPRESOR') || c.includes('GRUPO')) return { intervalo: 250, tipo: 'Grupo/Compresor' };
+  if (c.includes('MARTILLO') && p.cat === 'ACC') return { intervalo: 600, tipo: 'Martillo hidráulico (resellado)' };
+  if (p.cat === 'CAM') return { intervalo: 15000, tipo: 'Camión (uso severo obra)' };
+  if (p.cat === 'CV') return { intervalo: 10000, tipo: 'Camioneta' };
+  if (p.cat === 'AU') return { intervalo: 10000, tipo: 'Auto' };
+  if (p.cat === 'MO') return { intervalo: 3000, tipo: 'Moto' };
+  return null;
+}
+
+const BIENES = PARQUE.map(p => {
+  const pd = planPara(p);
+  return {
+    id: p.id, cat: p.cat,
+    modelo: ((p.marca + ' ' + (p.modelo || '')).trim()) || p.desc || p.clas || '',
+    clas: p.clas, desc: p.desc, dominio: p.dom, resp: p.resp,
+    anio: p.anio || '', obra: p.tit || 'Sin titularidad', estado: p.estado || 'operativo', obs: p.obs || '',
+    medidor: null,
+    plan: pd ? { intervalo: pd.intervalo, ultimo: null, tipo: pd.tipo } : null,
+    docs: p.vig ? [{ t: ('Seguro ' + (p.aseg || '')).trim(), v: new Date(p.vig[0], p.vig[1] - 1, p.vig[2]) }] : [],
+    bitacora: [],
+  };
+});
 const OBRAS = [...new Set(BIENES.map(b => b.obra))].sort();
+
+/* Personal del taller (nombres de ejemplo: se reemplazan por el equipo real) */
+const PERSONAL = [
+  { id: 'per1', nombre: 'Mecánico 1', rol: 'Mecánico' },
+  { id: 'per2', nombre: 'Mecánico 2', rol: 'Mecánico' },
+  { id: 'per3', nombre: 'Herrero 1', rol: 'Herrero' },
+  { id: 'per4', nombre: 'Herrero 2', rol: 'Herrero' },
+  { id: 'per5', nombre: 'Ayudante', rol: 'Ayudante' },
+];
 
 let OTS = [];
 let otSeq = 1;
 
-/* ============ Lógica de alertas ============ */
+/* Uso mensual estimado por categoría, para proyectar fechas (editable en Predictivo) */
+const usoCat = { MAQ: 160, EQU: 120, ACC: 100, CAM: 3000, CV: 2500, AU: 2000, MO: 800 };
+
+/* La wiki técnica se completa con la investigación (ver README) */
+const WIKI = [
+{ ...{"titulo": "Doosan DX225LCA (flota principal, 4 unidades)", "plan": ["<b>Diario (10 hs):</b> niveles, decantar prefiltro de gasoil, indicador de filtro de aire, engrase de TODOS los pines del frente (en demolición), tensión de cadenas, pérdidas.", "<b>250 hs:</b> aceite motor + filtro (el DB58TIS admite 500 con filtro de alta capacidad; en polvo de demolición la práctica es 250), engrase de corona y piñón de giro, limpieza de filtro primario de aire.", "<b>500 hs:</b> filtros de combustible primario y secundario; limpieza de radiadores con aire (en demolición: semanal o diaria).", "<b>1.000 hs:</b> filtro de retorno hidráulico (<b>con martillo: 500 hs o menos</b>), filtro piloto y respiradero, aceite de reductor de giro y mandos finales (primer cambio a 500).", "<b>2.000 hs:</b> aceite hidráulico completo con colador (<b>con martillo ≥50%: 1.000 hs</b>), refrigerante (2 años), regulación de válvulas.", "<b>4–5.000 hs:</b> presiones patrón de bomba, motores de giro/traslación, set de mangueras del martillo, medición de desgaste de rodaje."], "fallas": ["Motor que se ahoga al exigir el brazo (típico DX225LCA): calibración bomba-motor (EPOS), entrega de combustible, filtros.", "Baja presión hidráulica generalizada con horas: desgaste de bomba principal, presión piloto, alivios descalibrados.", "Vibración/traqueteo hidráulico (caso resuelto con inyectores), joysticks erráticos, recalentamiento por radiadores tapados de polvo.", "Repuestos Doosan con demoras: mantener stock propio de filtros, sellos y mangueras."], "practicas": ["Con 4 unidades gemelas: análisis de aceite (motor, hidráulico, mandos) cada 250–500 hs comparando entre máquinas — detecta el desgaste de bomba antes de la falla."], "checks": [], "fuentes": 10}, match: b => b.cat === 'MAQ' && /DOOSAN/i.test(b.modelo) },
+{ ...{"titulo": "Sany SY135C / SY215C y Komatsu PC200-8", "plan": ["<b>Sany:</b> aceite motor + filtro a 500 hs (Cummins QSB del SY215C: <b>con gasoil de azufre alto, 250 hs</b>); filtros hidráulicos a 1.000; aceite hidráulico a 2.000 (<b>con martillo: 1.000</b>). El manual Sany reconoce el martillo como uso severo: el servicio del circuito pasa de anual a cada 6 meses.", "<b>Komatsu PC200-8:</b> aceite motor + filtro 500 hs (gasoil con azufre >0,2%: 250); prefiltro de combustible 500, filtro principal 1.000; filtro de retorno hidráulico 1.000 — <b>la tabla de martillo del manual lo baja hasta 100–250 hs con uso intensivo</b>; aceite hidráulico 5.000 SOLO con aceite genuino y sin martillo → <b>con ~50% martillo: 2.000–2.500; intensivo: 1.000–1.500</b>; mandos finales 2.000; válvulas a 4.000."], "fallas": ["SY135C: motor que 'se cae' tras 20–30 min y se recupera parado — entrega de combustible (bomba, filtros, venteo) o recalentamiento.", "Sany: sensores/conectores es el rubro flojo (limpiar masas con dieléctrico); mangueras originales desiguales — reemplazar por calidad al primer recambio. Estructura y soldadura: robustas.", "PC200-8: el punto débil n.º 1 es el <b>common rail Denso</b> — inyectores y sensor de riel mueren por agua/impurezas en el gasoil: doble filtrado, drenaje diario del separador, considerar filtro extra de 2–5 μm. Motor que se apaga al girar bajo carga: presóstatos detrás de cabina. Mejor disponibilidad de repuestos del lote."], "practicas": [], "checks": [], "fuentes": 9}, match: b => b.cat === 'MAQ' && /SANY|KOMATSU/i.test(b.modelo) },
+{ ...{"titulo": "Miniexcavadoras Bobcat E35 / E50 y Wacker Neuson EZ53", "plan": ["Bobcat: <b>primer cambio de aceite de mandos finales y filtro case drain a las 50 hs</b> (máquina nueva — existe kit oficial); aceite motor Kubota 250–500 hs (en polvo: 250); <b>filtro hidráulico + respiradero + case drain juntos cada 500 hs</b>; aceite de mandos finales (SAE 90 GL-5) cada 1.000 hs o anual; hidráulico 1.000–2.000 (<b>con martillo: 500–1.000</b>).", "Wacker EZ53: engrase completo semanal (50 hs) incl. corona; aceite motor 250–500; filtros hidráulicos 500; hidráulico y reductores de traslación a 1.000 hs o anual."], "fallas": ["E35: falla de motor de traslación por <b>filtro case drain tapado</b> (la presión de retorno revienta el sello del mando final) — la causa n.º 1 documentada; rodamiento principal; sensores.", "E50: bloqueos de aire en combustible si se queda sin gasoil (purga + códigos); pulgar hidráulico que no cierra.", "EZ53 recientes con DPF: el ciclo demolición (ralenti + baja carga) lo tapa — completar regeneraciones, evitar ralenti largo. Poca base instalada = repuestos lentos.", "Minis en demolición: no montar martillo sobredimensionado (daña pluma y corona); orugas de goma sufren el hierro — evaluar tejas híbridas."], "practicas": [], "checks": [], "fuentes": 8}, match: b => b.cat === 'MAQ' && /BOBCAT|WACKER/i.test(b.modelo) },
+{ ...{"titulo": "Volvo L110F (cargador frontal)", "plan": ["Aceite motor + filtro 500 hs (1.000 solo con aceite VDS-4.5 y filtros larga vida — en polvo mantener 500). Filtro de cabina cada 250 hs o menos (el operador respira polvo de hormigón).", "Transmisión: aceite + filtro a 1.000 hs; ejes con frenos húmedos: aceite a 2.000 hs; hidráulico 2.000 hs; refrigerante VCS amarillo — NUNCA mezclar con verde; válvulas del D6E a 2.000.", "Volvo es estricto con sus especificaciones propias (VDS-4.5, WB101, 97304): respetarlas o se pierde la vida útil de transmisión y ejes."], "fallas": ["Transmisión: 'gear shift reduced check' / pérdida intermitente de marcha — presión/sensores del TCU, conexiones eléctricas; fluido contaminado lo agrava (las transmisiones L110 son ítem habitual de remanufactura).", "D6E: sensor de presión de riel y pérdida de potencia — fix de campo documentado: retorquear las abrazaderas de inyectores (inyector flojo mete gases al riel).", "En demolición: cortes de neumáticos por hierro — inspección diaria; evaluar relleno de espuma o cadenas."], "practicas": [], "checks": [], "fuentes": 6}, match: b => b.cat === 'MAQ' && /VOLVO/i.test(b.modelo) },
+{ ...{"titulo": "Reglas de oro en demolición: martillo, rodaje, polvo y lubricantes", "plan": [], "fallas": [], "practicas": ["<b>Martillo hidráulico: engrase cada 2 horas de trabajo con pasta para cincel</b> (moly/cobre — nunca grasa común: no aguanta la temperatura del buje), siempre en vertical con el peso apoyado en la herramienta. Prohibido: golpes en vacío, palanquear con el cincel, más de 15–30 s en el mismo punto. Nitrógeno: control cada 100–250 hs de martillo. Con jornadas de 8–10 hs conviene lubricador automático.", "<b>Aceite hidráulico y filtros del portador: mitad de intervalo con martillo ≥50% del tiempo</b> — es la regla más repetida en todas las fuentes.", "<b>Rodaje:</b> limpieza diaria al fin de jornada (el polvo de hormigón compactado desgasta bujes y sellos; el hierro corta sellos de rodillos); tensión de cadena cada 10–15 hs; medición formal de desgaste cada 1.000–2.000 hs.", "<b>Polvo:</b> soplado de radiadores semanal (diario con corte/hidrodemolición) — el recalentamiento crónico es la causa raíz de media flota; filtro de aire por indicador de restricción, nunca limpiar el elemento interno; filtros de cabina cada 250 hs (el sílice es salud ocupacional).", "<b>Lubricantes (equivalencias locales):</b> motor 15W-40 CI-4/CJ-4 (Shell Rimula R4X / YPF Extravida XV); hidráulico ISO VG 46 HV (VG 68 en verano; Tellus S2V / YPF Hidráulico BP); mandos y giro SAE 80W-90 GL-5 EP; grasa EP2 litio para pines + pasta de cincel para el martillo. No mezclar marcas de hidráulico sin flush. El intervalo de 5.000 hs de Komatsu solo vale con aceite genuino.", "Arranque: 5 min de calentamiento (hidráulico frío + martillo = daño de bomba). Fin de jornada: tanque de gasoil lleno (evita condensación), limpieza de rodaje, posición de estacionamiento."], "checks": ["Check diario del operador (5 min): vuelta perimetral (pérdidas, fisuras en pluma/brazo/portamartillo, dientes, pasadores con traba) · niveles · drenaje del separador de agua (obligatorio diario con gasoil de obra) · indicador del filtro de aire + válvula de polvo · tensión de cadena y hierro clavado · engrase de pines del frente · mirada a los panales del radiador · mangueras del martillo · en cabina: anotar horómetro, luces, alarma de traslación, códigos en monitor, matafuegos."], "fuentes": 12}, match: b => b.cat === 'MAQ' && /EXCAVADORA|CARGADOR/i.test(b.clas || '') },
+{ ...{"titulo": "Martillos hidráulicos (Indeco, Soosan, Krupp, Epiroc, Daemo, Brokk BHB155)", "plan": ["<b>Engrase cada 2 hs de uso efectivo (cada 1 h con polvo de hormigón)</b>: 5–10 bombeadas de pasta para cincel con la herramienta apoyada y presionada. Con autolube (ContiLube/Daemo): verificar a diario que el cartucho tenga producto — un autolube vacío es un martillo sin grasa.", "<b>Nitrógeno: control semanal</b> (o cada 40–50 hs) y siempre tras un resellado. Culata típica 14–17 bar (Soosan SQ: 15,5 kg/cm² a 0 °C → 17,5 a 40 °C — ajustar en cambio de estación). Solo nitrógeno seco, nunca aire. Indeco: revisar sello de gas cada 600–800 hs.", "<b>Bujes y herramienta: medición semanal</b>. Holgura nueva 0,15–0,25 mm; a 1 mm conviene cambiar el buje; límite duro típico 5–8 mm. Herramienta: descartar al diámetro mínimo de placa, ante hongo o quemado azul (el hongo se amola en frío; nunca soldar una herramienta templada). Re-torquear tirantes: uno flojo corta a los otros tres.", "<b>Resellado cada 600–1.000 hs de percusión</b> (demolición con polvo: 800–1.200); overhaul completo cada 1.000–3.000 hs. Planificación para uso diario: <b>1 resellado + 1 juego de bujes + 2–4 herramientas por año por martillo activo</b>.", "Aceite hidráulico del portador: <b>mitad de intervalo</b> con uso intensivo; temperatura máxima 80 °C; limpieza objetivo ISO 4406 20/18/15 o mejor."], "fallas": ["Rotura de pistón ← bujes vencidos o falta de grasa (la reparación más cara). Rotura de herramienta ← palanqueo o golpe en vacío. Tirantes cortados ← falta de re-torqueo. Diafragma roto ← N2 incorrecto. Sellos quemados ← aceite >80 °C."], "practicas": ["Perpendicular a la superficie, precarga con el peso del brazo, reposicionar cada 15–30 s si no rompe, nunca golpear en vacío, tapar los acoples al desmontar."], "checks": [], "fuentes": 17}, match: b => /MARTILLO/i.test(b.clas || '') },
+{ ...{"titulo": "Mordazas, pulverizadores y cizallas (Atlas Copco, Indeco JRP, Trevi Benne, Daemo)", "plan": ["Engrase de todos los pivotes por turno (perno principal cada 4 hs en uso intensivo) — la grasa además expulsa el polvo abrasivo de pernos y bujes.", "Giro 360°: grasa del rodamiento de corona cada 50–100 hs y del dentado cada 8 hs, girando mientras se engrasa; <b>controlar el torque de los tornillos de la corona</b> (su aflojamiento es falla catastrófica).", "Cuchillas: verificar torque de tornillos por turno/semana (una cuchilla floja destruye el alojamiento); mantener el gap de corte con sonda y suplementos; rotar las cuchillas reversibles antes de que se redondeen; recargue por soldadura solo con procedimiento del fabricante.", "Diario: fisuras en mandíbulas, cuello y orejetas; mangueras; juego del perno principal."], "fallas": ["Fisuras por fatiga en mandíbulas/orejetas, cuchillas caídas por torque no verificado, corona seca, mangueras cortadas por hierro, sobrecarga por cortar en la garganta incorrecta (cortar siempre lo más adentro de la boca)."], "practicas": [], "checks": [], "fuentes": 8}, match: b => /MORDAZA|CIZALLA|PULVERIZADOR/i.test(b.clas || '') },
+{ ...{"titulo": "Hidrogrúa Palfinger PK-42502 (normativa e inspecciones)", "plan": ["<b>Cada 50 hs o mensual:</b> engrase completo — columna con la pluma elevada al máximo (así la grasa llega al rodamiento de giro), correderas de prolongas con grasa MoS2, pernos, cremallera de giro.", "<b>Anual:</b> inspección documentada por personal calificado (IRAM 3927: intervalos de 1 a 12 meses según severidad) con verificación del limitador de momento y válvulas de sobrecentro; práctica de mercado exigida por ARTs: informe firmado por profesional + ensayo de carga + tintas penetrantes en ganchos y soldaduras críticas.", "Marco legal: Ley 19.587 + Decreto 911/96 (aparatos elevadores: registro de mantenimiento, operadores autorizados, gancho con traba). La Res. SRT 960/15 es SOLO para autoelevadores — no usarla como marco de la hidrogrúa.", "Pre-uso diario: niveles, mangueras, gancho y pestillo, estabilizadores y trabas, parada de emergencia, bulonería de fijación al chasis (re-torquear tras las primeras 50 hs)."], "fallas": ["Rodamiento de columna seco (juego/ruido), tacos de prolongas gastados por falta de grasa, válvulas de sobrecentro descalibradas (la pluma 'cede'), fisuras en orejetas de estabilizadores, bulones de montaje flojos."], "practicas": [], "checks": [], "fuentes": 7}, match: b => /HIDROGRUA/i.test(b.clas || '') },
+{ ...{"titulo": "Grupos electrógenos y compresores (Sullair 185, Chicago Pneumatic)", "plan": ["Grupos: service de <b>250 hs o 6 meses</b> (aceite + filtros de aceite y combustible SIEMPRE); mensual: arranque con carga ≥30% durante 30 min (evita el carbonizado por baja carga); anual: banco de carga al 80–100% y calibración de válvulas.", "Compresores Sullair: kits oficiales a 50 (inicial), 250 (aceite motor), 500 (filtros combustible + muestreo) y <b>1.500 hs (fluido del compresor, filtro y separador aire/aceite)</b>."], "fallas": ["Grupos: baterías (causa n.º 1 de no-arranque), gasoil con agua/bacteria en tanques de obra, radiador tapado de polvo, AVR quemado por bornes flojos (termografía del tablero lo anticipa).", "Compresores: separador saturado (arrastra aceite al aire y mata los martinetes neumáticos), válvula de admisión pegada, sobretemperatura por radiador sucio."], "practicas": [], "checks": [], "fuentes": 8}, match: b => b.cat === 'EQU' || /COMPRESOR/i.test(b.clas || '') },
+{ ...{"titulo": "Mercedes-Benz Axor / Atego / Accelo (y 1624, 2423K)", "plan": ["Aceite motor + filtro (MB 228.3, 15W-40): volcadores en obra <b>15.000–20.000 km o 350 hs o 6 meses</b>, lo que ocurra primero (plan oficial Axor 3131 severo = 350 hs; Atego severo = 300 hs). Tractores en ruta: 30.000–45.000 km.", "Filtro de gasoil + separador de agua en cada service; <b>filtro de salida de tanque: limpieza en cada service y cambio cada 700 hs</b> (plan oficial). Purga del separador semanal.", "Filtro de aire por indicador de restricción; en demolición inspección semanal y cambio típico a 500–700 hs. No soplarlo más de 1–2 veces.", "Caja y diferenciales: en obra <b>60.000 km o anual</b> (o por análisis de aceite, que es lo que pide MB). Accelo plan oficial severo: 1º a 15.000, 2º a 60.000, luego cada 45.000 km.", "Frenos de leva/campana en volcadores: regulación y cintas en cada service (el desgaste en obra es 2–3× ruta). Purga de tanques de aire diaria; cartucho del secador de aire <b>anual</b> en uso severo.", "Refrigerante MB 325/326 al 50%: control en cada service, cambio cada 3 años. Correas poly-V con tensor cada ~2.000 hs.", "1624 / 2423K viejos (OM 366/447): aceite cada 10.000–15.000 km máximo, reglaje de válvulas cada 60–80.000 km, bomba en línea calibrada cada ~150.000 km, engrase manual crítico."], "fallas": ["Axor: caja automatizada que se recalienta y 'no toma cambios' o queda en modo manual; tras cambiar el embrague hay que reajustar el servo y reprogramar el recorrido (falla típica si no se hace). Pérdida de potencia por pedal/sensor; tablero muerto por masas/CAN.", "Accelo: <b>cristalización de urea (SCR/AdBlue)</b> con 'limitado en su uso' — típico del arranque-parada urbano; usar AdBlue certificado y revisar el inyector de urea en cada service. Caja que no engrana por comando electrónico; 'imposible arranque' en tablero.", "Atego/viejos: soportes de cabina y elásticos castigados en obra; en OM 366: bomba inyectora y tapa de cilindros por recalentamiento."], "practicas": [], "checks": [], "fuentes": 18}, match: b => b.cat === 'CAM' && /MERCEDES/i.test(b.modelo) },
+{ ...{"titulo": "Scania P380 8x4 y G440 (DC13, Opticruise, Retarder)", "plan": ["Esquema Scania en escalones de 15.000 km; para 'tráfico de construcción' queda en <b>15.000–20.000 km o 500 hs</b> de aceite + filtros. El plan flexible con telemetría (hasta 155.000 km) es solo para larga distancia liviana — jamás para volcadores de obra.", "Caja GRS + Opticruise: aceite STO en obra <b>60.000 km o anual</b>; leer códigos de autodiagnóstico en cada service.", "Retarder: aceite + filtro propio cada <b>120.000 km o 2 años</b> (antes si trabaja en pendiente con carga).", "Calibración de válvulas e inyectores XPI: en los módulos mayores (~90–120.000 km / 2.000 hs en obra)."], "fallas": ["Retarder: electroválvulas y sensor de temperatura, aceite vencido. Opticruise: desgaste de embrague si se maniobra lento sin usar el modo maniobra.", "Inyectores XPI muy sensibles al agua en el gasoil: el separador tiene que estar impecable.", "En 8x4 de obra: bujes de elásticos delanteros dobles, fuelles y ballestas son consumibles."], "practicas": [], "checks": [], "fuentes": 8}, match: b => b.cat === 'CAM' && /SCANIA/i.test(b.modelo) },
+{ ...{"titulo": "VW 13.180, Ford F-14000 y furgones (Vito, Master, Kangoo, Daily)", "plan": ["VW 13.180 (MWM/Cummins): aceite en obra <b>10.000–15.000 km o 250–300 hs</b>; caja Eaton 50.000 km severo; diferencial Meritor 50.000 km (85W-140 en obra); ajuste de recorrido de embrague en cada service.", "Ford F-14000 (Cummins 6BT): cárter chico — <b>aceite cada 10.000–12.000 km o 250 hs, nunca más de 15.000</b>; trampa de agua en cada cambio (bomba rotativa sensible al gasoil sucio); reglaje de válvulas cada 2.000 hs.", "Furgones (Vito 111, Master, Kangoo, Daily 70.12): aceite <b>10.000 km o 1 año</b> en uso urbano de obra; correa de distribución Master/Kangoo dCi a 90–120.000 km o 5 años con bomba de agua; Vito y Daily llevan cadena; pastillas 20–30.000 km cargados."], "fallas": ["6BT: presión de aceite baja por desgaste, ruido de distribución, fisuras de múltiple — candidato a mantener por condición con análisis de aceite semestral (repuestos baratos y abundantes).", "Vito OM646: el 'black death' (fuga por sello de inyector que carboniza la culata) — revisar asientos de inyectores en cada service; EGR y admisión con carbonilla.", "Master: embrague (punto débil clásico), turbo/inyección, EGR, sobrecalentamiento por electroventilador. Kangoo 1.5 dCi: arranque entre 80–120.000 km (precalentadores), inyectores. Daily 8140: bomba inyectora, junta de culata >200.000 km, espárragos de rueda dual por sobrecarga.", "VW 13.180: eléctrica de cabina y embrague urbano; motor y transmisión nobles con aceite al día."], "practicas": [], "checks": [], "fuentes": 12}, match: b => b.cat === 'CAM' && !/MERCEDES|SCANIA/i.test(b.modelo) },
+{ ...{"titulo": "Buenas prácticas: volcadores en demolición + check diario del chofer + regulatorio", "plan": [], "fallas": [], "practicas": ["<b>Hidráulico de volteo:</b> nivel y fugas a diario; aceite anual o por análisis con filtro de retorno; vástago limpio y sin rayaduras; PTO solo con embrague a fondo y régimen bajo; nunca circular con la caja levantada ni trabajar debajo sin traba mecánica. Alarma: elevación despareja, lenta o a golpes.", "<b>Neumáticos:</b> presión semanal en frío (8x4 cargado: eje trasero suele ir arriba de 8 bar); inspección diaria de cortes y piedras entre duales (el hierro del escombro corta flancos); rotación cada 8.000–12.000 km; banda mixta on/off en ejes de tracción.", "<b>Suspensión y engrase:</b> elásticos, bujes y amortiguadores son consumibles en obra — revisar hojas fisuradas y bridas en el engrase semanal; crucetas y punteras cada semana o 500–1.000 km con grasa EP2 hasta purgar; retorque de bridas cada 10.000 km.", "<b>Sobrecarga:</b> el escombro engaña por volumen (~1,8 t/m³ mixto): cubicar la caja y marcar línea de llenado. Tándem doble dual: 18 t legales; un 8x4 queda en ~30,5 t de PBT. La sobrecarga rompe espárragos, fisura largueros y recalienta frenos — y la multa es solidaria con el cargador.", "<b>Fin de jornada:</b> soplado de radiador/intercooler si hubo polvo, purga de tanques de aire, lavado del vástago si tocó hormigón."], "checks": ["Check diario (10–15 min): niveles (motor, refrigerante, hidráulico, AdBlue) · fugas debajo · neumáticos, espárragos y duales sin piedras · purga de tanques (agua = cambiar secador) y prueba de frenos · luces, balizas, alarma de retroceso · PTO y compuerta trasera con traba · lona cubre-carga · matafuegos, balizas, tacos · documentación: licencia, cédula, seguro, RTO/VTV, RUTA, remito · registro firmado en planilla/app.", "Regulatorio (verificar: régimen en reforma, Dto. 832/2024): RTO <b>anual</b> para cargas interjurisdiccionales (2 años sin RTO = cae el RUTA); VTV PBA <b>anual</b> para cargas locales; RUTA + RTO + seguro se renuevan todos los años; LiNTI eliminada (alcanza licencia profesional C/E)."], "fuentes": 10}, match: b => b.cat === 'CAM' },
+{ ...{"titulo": "Toyota Hilux (2.4 / 2.8 GD y 2.5 / 3.0 KD)", "plan": ["Aceite + filtro cada <b>10.000 km o 1 año</b>. Motores GD (2.4/2.8) con DPF: aceite low-SAPS ACEA C2/C3 5W-30 (~7,5 L el 2.8).", "Filtro de gasoil: oficial 20.000 km → <b>en obra 10.000–15.000 km</b> o al encender el testigo. Purga del decantador: semanal.", "Filtro de aire: en polvo de obra inspección semanal y cambio cada 10.000–15.000 km (manual: 20.000–40.000).", "Distribución: 2.4/2.8 GD llevan <b>cadena, sin cambio programado</b>. Las 2.5/3.0 KD llevan <b>correa: oficial 150.000 km, en obra hacerla a 100.000</b> con tensor y bomba de agua.", "Engrase de crucetas y puntas de eje en cada service; aceite de diferenciales/caja/transfer cada 40.000 km en uso severo. Refrigerante SLLC: primero a 160.000, luego cada 80.000. Líquido de frenos cada 2 años."], "fallas": ["1KD 3.0 (2005–2015): pistones rajados típicos entre 100–150.000 km (Euro IV), inyectores Denso con fuga (humo blanco en frío), válvula SCV de la bomba (arranque difícil en caliente), EGR carbonizada.", "2KD 2.5: turbo (silbido de sirena), SCV, ruido de bomba inyectora.", "2.8/2.4 GD: EGR y su enfriador se ensucian; DPF en las 2.8 — los trayectos cortos de obra cortan la regeneración: sacarla a ruta 30–40 min cada 1–2 semanas; inyectores common-rail intolerantes al agua en el gasoil; embrague/vibraciones en las 2.4 6MT.", "En obra: bujes de elástico, extremos de dirección y amortiguadores son consumibles — inspección en cada service."], "practicas": ["El gasoil de obra es el enemigo n.º 1: un juego de inyectores GD cuesta más que un año de services. Trampa de agua en el punto de despacho + purga semanal del sedimentador.", "No soplar el filtro de aire con alta presión (perfora el papel); verificar sellos del portafiltro. Considerar prefiltro ciclónico en las que viven en obra.", "Alineación cada 10.000 km o tras cada golpe; retorque de tuercas de rueda tras cada cambio."], "checks": [], "fuentes": 14}, match: b => b.cat === 'CV' && /HILUX/i.test(b.modelo) },
+{ ...{"titulo": "VW Amarok (2.0 TDI 180 y V6 3.0 TDI)", "plan": ["Aceite + filtros cada <b>10.000 km / 1 año</b> (norma VW 507.00 low-SAPS; el V6 lleva casi el doble de aceite).", "Filtro de gasoil: con combustible de obra cada 10.000 km + drenaje semanal del prefiltro.", "<b>Distribución 2.0 TDI: correa — plan oficial 90.000 km, pero con roturas de campo reportadas a 60.000–75.000: en flota de obra hacerla a 60.000–70.000 km</b> con tensor, rodillos y bomba de agua (motor interferente: la rotura dobla válvulas).", "V6 3.0 TDI: cadena trasera sin cambio programado — vive de la calidad y frecuencia del aceite.", "Caja ZF 8AT del V6: 'sellada', pero en uso severo cambiar ATF + filtro a 80.000–100.000 km."], "fallas": ["2.0 TDI: la clásica <b>bomba de aceite / eje hexagonal</b> (pérdida súbita de presión → motor fundido). Recambio preventivo del eje al hacer la segunda distribución.", "2.0 TDI: EGR carbonizada, actuadores del biturbo, volante bimasa y embrague (180 MT), bomba eléctrica de gasoil en tanque.", "V6: pérdidas de agua entre caja y motor, selectora (no marca P / no arranca), electrónica de inyección costosa fuera de garantía."], "practicas": ["Mismo régimen de aire/gasoil/tren delantero que la Hilux de obra."], "checks": [], "fuentes": 8}, match: b => b.cat === 'CV' && /AMAROK/i.test(b.modelo) },
+{ ...{"titulo": "Autos y utilitarios livianos (Cronos, Onix, Tracker, Montana, Corolla, Etios, Taos, Suran, Berlingo, Changan, DFSK)", "plan": ["Regla de flota: aceite + filtro cada <b>10.000 km o 1 año</b> (utilitarios chinos Changan/DFSK: <b>cada 5.000–7.500 km sin excepción</b>).", "<b>Correas de distribución</b> (cambiar siempre con tensor y bomba de agua): Onix 1.4 y Montana 1.8 → <b>50.000–60.000 km</b> (roturas documentadas a 60.000); Tracker 1.8 → 60.000–90.000; Suran 1.6 y Berlingo 1.4 → 60.000–70.000; Taos 250 TSI → 100.000–120.000.", "<b>Con cadena (sin cambio programado)</b>: Fiat Cronos 1.3 GSE, Corolla, Etios, Yaris.", "Bujías: Cronos 30.000–40.000; Etios/Yaris 40.000–60.000; Corolla iridio 100.000. CVT Corolla: fluido a 80.000–100.000 en uso severo."], "fallas": ["Chevrolet (Onix/Tracker): termostato y carcasa plástica con pérdidas de refrigerante (muy repetido), bobinas, bieletas.", "Cronos 1.3: consumo de aceite en series 2018–2019 (controlar varilla cada 1.000 km), módulo TIMP/fusilera, bobinas.", "Etios: bujías/bobinas y cuerpo de aceleración sucio (se apaga en deceleración) — limpiar en cada service si anda en polvo.", "Berlingo 1.4: eléctrica PSA (relés, masas), arranque errático, drenaje de A/C al habitáculo.", "Changan/DFSK: sensor de cigüeñal, balizas pegadas, arranque en frío, embragues justos. <b>Riesgo posventa: tener en pañol stock de filtros, correas poly-V, pastillas y un kit de embrague por modelo.</b>"], "practicas": ["VTV: en PBA es <b>anual</b> (primera a los 2 años o 60.000 km); en CABA cada 24 meses hasta los 10 años y luego anual. Calendarizarla junto con un service.", "Lavado de bajos y de radiador/intercooler: el barro seco recalienta. Filtro de habitáculo cada 10.000 km."], "checks": ["Checklist semanal del conductor: nivel de aceite y refrigerante, purga del decantador (diésel), presión y estado de cubiertas + auxilio, luces completas y bocina, pérdidas debajo, frenos, tuercas a la vista, documentación + VTV + matafuegos, registro de km y testigos (prohibido rodar con testigo de aceite o temperatura)."], "fuentes": 16}, match: b => b.cat === 'AU' || (b.cat === 'CV' && !/HILUX|AMAROK/i.test(b.modelo)) },
+{ ...{"titulo": "KPIs de taller y flota: qué medir y contra qué compararse", "plan": [], "fallas": [], "practicas": ["<b>Disponibilidad mecánica</b> = (hs programadas − hs parado por mantenimiento) / hs programadas. Típico construcción: 72–85%; world-class: >92%.", "<b>MTBF</b> (hs operadas / cantidad de fallas): excavadoras típico 400–600 hs; world-class >800. <b>MTTR</b> (hs de reparación / reparaciones): típico 12–18 hs; world-class 4–6.", "<b>% preventivo</b> (hs planificadas / hs totales de mantenimiento): típico 45–60%; world-class >85% (regla 80/20). <b>Cumplimiento de PM</b> en ventana ±10% de horas: meta >95%.", "<b>Costo por hora de máquina</b> (repuestos + mano de obra + terceros + lubricantes) / hs operadas — cuando supera el 60–80% del costo de posesión, es disparador de reemplazo del equipo.", "<b>Backlog</b> sano: 2–4 semanas de capacidad del taller. Más de 6 = fuera de control; menos de 2 = capacidad ociosa.", "Pasar de promedio a best-in-class ahorra en el orden de USD 85–135 mil/año cada 10 máquinas (referencia de la industria)."], "checks": ["Regla operativa: toda anomalía detectada en un checklist se convierte en ítem de OT — el hallazgo sin OT se pierde. Registrar litros y horómetro en cada carga de combustible: el consumo l/h por equipo con alerta de desvío >10–15% es el síntoma más temprano de falla (o de robo)."], "fuentes": 10}, match: b => false }
+];
+
+const CHECKLISTS = {
+  recepcion: { titulo: 'Recepción en taller', lectura: true, items: [
+    'Horómetro / odómetro registrado y foto del tablero',
+    'Nivel de aceite motor (varilla) y estado del aceite',
+    'Nivel de refrigerante y estado (color, aceite en agua)',
+    'Nivel de aceite hidráulico y color (¿lechoso, oscuro?)',
+    'Pérdidas visibles debajo del equipo (aceite, gasoil, refrigerante)',
+    'Estado de tren de rodaje / neumáticos (desgaste, cortes, tensión de cadena)',
+    'Estado del implemento (martillo, balde): bujes, pasadores, dientes',
+    'Fisuras visibles en pluma, brazo o chasis (revisión visual de soldaduras)',
+    'Luces, balizas, alarma de retroceso y bocina',
+    'Cabina: cinturón, asiento, espejos, matafuegos con carga vigente',
+    'Documentación y llaves entregadas; daños fotografiados',
+  ] },
+  obra: { titulo: 'Inspección en obra', lectura: true, items: [
+    'Engrase general realizado (pasadores, bujes, corona de giro)',
+    'Filtro de aire: indicador de restricción / limpieza del prefiltro',
+    'Pérdidas hidráulicas en mangueras, cilindros y acoples',
+    'Pasadores y trabas del implemento (martillo/balde) firmes',
+    'Fisuras o soldaduras abiertas en pluma, brazo y portamartillo',
+    'Cadenas / neumáticos: tensión, desgaste, tornillería de zapatas',
+    'Martillo: engrase de bujes al día, desgaste de la herramienta',
+    'Alarma de retroceso, balizas y espejos funcionando',
+    'Matafuegos presente y con carga vigente',
+    'Estado general de cabina y comandos; novedades del operador',
+  ] },
+  combustible: { titulo: 'Carga de combustible en obra', lectura: true, items: [
+    'Lectura de horómetro / odómetro ANOTADA en el parte',
+    'Litros cargados registrados (el consumo l/h con desvío >10–15% es alerta temprana de falla)',
+    'Nivel de aceite motor verificado antes del arranque',
+    'Nivel de refrigerante verificado',
+    'Purga del filtro decantador / trampa de agua del gasoil',
+    'Sin pérdidas visibles debajo del equipo',
+    'Filtro de la manguera del equipo de combustible limpio (sin tierra en el pico)',
+    'Engrase del martillo hecho en el turno (si corresponde)',
+    'Novedades del operador registradas',
+  ] },
+};
+
+/* ============ Alertas ============ */
 function alertasDe(b) {
   const out = [];
-  if (b.plan && b.medidor != null) {
+  if (b.plan && b.medidor != null && b.plan.ultimo != null) {
     const restante = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
     const u = CATS[b.cat].unidad;
     if (restante <= 0) out.push({ sev: 'crit', txt: 'Service vencido hace ' + fmtN.format(-restante) + ' ' + u });
@@ -216,27 +331,33 @@ function alertasDe(b) {
 }
 const buscar = id => BIENES.find(b => b.id === id);
 
-/* ============ Navegación ============ */
-const VISTAS = [['tablero', 'Tablero'], ['parque', 'Parque'], ['taller', 'Taller / OTs'], ['obra', 'Parte de obra']];
-let vista = 'tablero', fichaId = null;
+/* ============ Navegación / estado ============ */
+const VISTAS = [['tablero', 'Tablero'], ['parque', 'Parque'], ['wiki', 'Wiki técnica'], ['predictivo', 'Predictivo'],
+  ['taller', 'Taller'], ['checklists', 'Checklists'], ['obra', 'Parte de obra']];
+let vista = 'tablero', fichaId = null, tallerTab = 'cola', cerrando = null, modoParte = 'lectura';
 const filtros = { cat: '', estado: '', obra: '', q: '' };
+let chkTipo = 'combustible', chkBien = '', chkEstado = {}, chkOTs = true;
 
 function nav() {
   $('#nav').innerHTML = VISTAS.map(([k, l]) =>
     '<button class="' + (vista === k && !fichaId ? 'on' : '') + '" onclick="ir(\'' + k + '\')">' + l + '</button>').join('');
 }
-function ir(v) { vista = v; fichaId = null; render(); }
+function ir(v) { vista = v; fichaId = null; cerrando = null; render(); }
 function abrir(id) { fichaId = id; render(); window.scrollTo(0, 0); }
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3200);
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3600);
+}
+function kpi(n, l, cls) {
+  return '<div class="kpi ' + (cls || '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>';
 }
 
-/* ============ Vistas ============ */
+/* ============ Tablero ============ */
 function vTablero() {
   const conAlerta = BIENES.map(b => ({ b, al: alertasDe(b) })).filter(x => x.al.length);
   const crits = conAlerta.filter(x => x.al.some(a => a.sev === 'crit'));
   const enTaller = BIENES.filter(b => b.estado === 'taller').length;
+  const otsAb = OTS.filter(o => o.estado !== 'Cerrada').length;
   const sinSeguro = BIENES.filter(b => !b.docs.length).length;
   const top = conAlerta.sort((a, b2) => (b2.al.some(a2 => a2.sev === 'crit') ? 1 : 0) - (a.al.some(a2 => a2.sev === 'crit') ? 1 : 0)).slice(0, 12);
   return '<h2>Hoy, ' + fecha(HOY) + '</h2>' +
@@ -244,25 +365,24 @@ function vTablero() {
     kpi(BIENES.length, 'Bienes en el parque') +
     kpi(crits.length, 'Alertas críticas', 'crit') +
     kpi(conAlerta.length - crits.length, 'Por vencer (30 días)', 'warn') +
+    kpi(otsAb, 'OTs abiertas', otsAb ? 'warn' : '') +
     kpi(enTaller, 'En taller') +
     kpi(sinSeguro, 'Sin seguro informado', 'warn') +
     '</div>' +
-    '<h2>Requiere atención</h2><p class="sub">Documentación vencida o por vencer según el listado de bienes de uso. Tocá una fila para abrir la ficha.</p>' +
+    '<h2>Requiere atención</h2><p class="sub">Documentación vencida o por vencer y services según plan. Tocá una fila para abrir la ficha.</p>' +
     '<div class="card">' + (top.length ? top.map(({ b, al }) => {
       const a = al[0];
       return '<div class="alert-row" onclick="abrir(\'' + b.id + '\')">' +
         '<span class="sev ' + a.sev + '"></span>' +
-        '<div><b>' + b.id + ' · ' + b.modelo + '</b><div class="d">' + al.map(x => x.txt).join(' · ') + '</div></div>' +
-        '<div class="who"><span class="pill na">' + b.obra + '</span></div></div>';
+        '<div><b>' + b.id + ' · ' + esc(b.modelo) + '</b><div class="d">' + al.map(x => x.txt).join(' · ') + '</div></div>' +
+        '<div class="who"><span class="pill na">' + esc(b.obra) + '</span></div></div>';
     }).join('') : '<div class="alert-row"><div class="d">Sin alertas hoy.</div></div>') + '</div>' +
     '<p class="note">Mostrando ' + Math.min(12, conAlerta.length) + ' de ' + conAlerta.length + ' bienes con avisos. El listado completo está en <b>Parque</b>.</p>';
 }
-function kpi(n, l, cls) {
-  return '<div class="kpi ' + (cls || '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>';
-}
 
+/* ============ Parque ============ */
 function vParque() {
-  const opc = (arr, sel) => arr.map(([v, l]) => '<option value="' + v + '"' + (sel === v ? ' selected' : '') + '>' + l + '</option>').join('');
+  const opc = (arr, sel) => arr.map(([v, l]) => '<option value="' + esc(v) + '"' + (sel === v ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
   const lista = BIENES.filter(b =>
     (!filtros.cat || b.cat === filtros.cat) &&
     (!filtros.estado || b.estado === filtros.estado) &&
@@ -276,10 +396,10 @@ function vParque() {
     opc([['operativo', 'Operativo'], ['taller', 'En taller']], filtros.estado) + '</select>' +
     '<select onchange="setF(\'obra\',this.value)"><option value="">Todas las titularidades</option>' +
     opc(OBRAS.map(o => [o, o]), filtros.obra) + '</select>' +
-    '<input placeholder="Buscar por código, dominio o descripción… (ej. MAQ032)" value="' + filtros.q + '" oninput="setF(\'q\',this.value)">' +
+    '<input placeholder="Buscar por código, dominio o descripción… (ej. MAQ032)" value="' + esc(filtros.q) + '" oninput="setF(\'q\',this.value)">' +
     '</div>' +
     '<div class="twrap"><table><thead><tr><th>Interno</th><th>Bien</th><th>Titularidad</th>' +
-    '<th>Medidor</th><th>Seguro</th><th>Estado</th></tr></thead><tbody>' +
+    '<th>Medidor</th><th>Plan</th><th>Seguro</th><th>Estado</th></tr></thead><tbody>' +
     lista.slice(0, 80).map(b => {
       const u = CATS[b.cat].unidad || '';
       const al = alertasDe(b);
@@ -289,9 +409,10 @@ function vParque() {
         al.some(a => a.sev === 'crit') ? '<span class="pill crit">Crítico</span>' :
         al.length ? '<span class="pill warn">Aviso</span>' : '<span class="pill ok">Operativo</span>';
       return '<tr onclick="abrir(\'' + b.id + '\')"><td class="interno">' + b.id + '</td>' +
-        '<td>' + (b.clas ? b.clas + ' · ' : '') + b.modelo + (b.anio ? ' <span class="mono" style="color:var(--muted)">' + b.anio + '</span>' : '') + '</td>' +
-        '<td>' + b.obra + '</td>' +
+        '<td>' + esc((b.clas ? b.clas + ' · ' : '') + b.modelo) + (b.anio ? ' <span class="mono" style="color:var(--muted)">' + b.anio + '</span>' : '') + '</td>' +
+        '<td>' + esc(b.obra) + '</td>' +
         '<td class="mono">' + (b.medidor != null ? fmtN.format(b.medidor) + ' ' + u : '—') + '</td>' +
+        '<td class="mono">' + (b.plan ? 'c/' + fmtN.format(b.plan.intervalo) + ' ' + u : '—') + '</td>' +
         '<td class="mono">' + (doc && dias(doc.v) < 0 ? '<span style="color:var(--crit);font-weight:700">' + segTxt + '</span>' : segTxt) + '</td>' +
         '<td>' + est + '</td></tr>';
     }).join('') + '</tbody></table></div>' +
@@ -299,84 +420,255 @@ function vParque() {
 }
 function setF(k, v) { filtros[k] = v; render(); }
 
+/* ============ Ficha ============ */
 function vFicha(b) {
   const u = CATS[b.cat].unidad || '';
   const al = alertasDe(b);
   let planHtml;
-  if (b.plan && b.medidor != null) {
+  if (!b.plan) {
+    planHtml = '<p class="note" style="margin:0">Sin plan preventivo definido para esta clase de bien.</p>';
+  } else if (b.medidor == null || b.plan.ultimo == null) {
+    planHtml = '<div class="plan"><div class="row"><span>' + esc(b.plan.tipo) + '</span>' +
+      '<span class="mono">service cada ' + fmtN.format(b.plan.intervalo) + ' ' + u + '</span></div></div>' +
+      '<p class="note" style="margin:0">Cargá la primera lectura del medidor (en <b>Parte de obra</b> o con el checklist de combustible) para activar el seguimiento.</p>';
+  } else {
     const prox = b.plan.ultimo + b.plan.intervalo, rest = prox - b.medidor;
     const pct = Math.min(100, Math.round((b.medidor - b.plan.ultimo) / b.plan.intervalo * 100));
     const cls = rest <= 0 ? 'crit' : rest <= b.plan.intervalo * 0.12 ? 'warn' : '';
-    planHtml = '<div class="plan"><div class="row"><span>Service cada ' + fmtN.format(b.plan.intervalo) + ' ' + u + '</span>' +
+    planHtml = '<div class="plan"><div class="row"><span>' + esc(b.plan.tipo) + ' · cada ' + fmtN.format(b.plan.intervalo) + ' ' + u + '</span>' +
       '<span class="mono">' + (rest <= 0 ? 'vencido hace ' + fmtN.format(-rest) + ' ' + u : 'faltan ' + fmtN.format(rest) + ' ' + u) + '</span></div>' +
       '<div class="bar"><i class="' + cls + '" style="width:' + pct + '%"></i></div>' +
       '<div class="row" style="margin-top:4px;color:var(--muted);font-size:12px"><span>último: ' + fmtN.format(b.plan.ultimo) + ' ' + u + '</span><span>próximo: ' + fmtN.format(prox) + ' ' + u + '</span></div></div>';
-  } else {
-    planHtml = '<p class="note" style="margin:0">Sin plan preventivo cargado todavía. El siguiente paso del sistema es definir el plan de cada bien (cada X horas, X km o por calendario) y registrar la primera lectura del medidor.</p>';
   }
-  const total = b.bitacora.reduce((s, e) => s + e.costo, 0);
+  const total = b.bitacora.reduce((s, e) => s + (e.costo || 0), 0);
   return '<button class="back" onclick="ir(\'' + (vista === 'tablero' ? 'tablero' : 'parque') + '\')">&larr; Volver</button>' +
     '<div class="card"><div class="ficha-head">' +
     '<div class="ic">' + b.cat + '</div>' +
-    '<div><h3>' + b.id + ' · ' + (b.clas ? b.clas + ' ' : '') + b.modelo + '</h3>' +
-    '<div class="meta"><span>' + CATS[b.cat].nombre + (b.anio ? ' · ' + b.anio : '') + '</span><span>' + b.obra + '</span>' +
-    (b.dominio ? '<span class="mono">Dominio ' + b.dominio + '</span>' : '') +
-    (b.resp ? '<span>Responsable: ' + b.resp + '</span>' : '') +
+    '<div><h3>' + b.id + ' · ' + esc((b.clas ? b.clas + ' ' : '') + b.modelo) + '</h3>' +
+    '<div class="meta"><span>' + CATS[b.cat].nombre + (b.anio ? ' · ' + b.anio : '') + '</span><span>' + esc(b.obra) + '</span>' +
+    (b.dominio ? '<span class="mono">Dominio ' + esc(b.dominio) + '</span>' : '') +
+    (b.resp ? '<span>Responsable: ' + esc(b.resp) + '</span>' : '') +
     '<span class="mono">' + (b.medidor != null ? fmtN.format(b.medidor) + ' ' + u : 'sin lectura de medidor') + '</span>' +
     (total ? '<span>Mantenimiento acumulado: <b>' + fmt$.format(total) + '</b></span>' : '') + '</div>' +
     (al.length ? '<div style="margin-top:8px">' + al.map(a => '<span class="pill ' + a.sev + '" style="margin-right:6px">' + a.txt + '</span>').join('') + '</div>' : '') +
-    (b.obs ? '<p class="note" style="margin:6px 0 0">' + b.obs + '</p>' : '') +
+    (b.obs ? '<p class="note" style="margin:6px 0 0">' + esc(b.obs) + '</p>' : '') +
     '</div></div>' +
     '<div class="fgrid"><div class="fcol"><h4>Plan preventivo</h4>' + planHtml +
     '</div><div class="fcol"><h4>Documentación</h4>' +
     (b.docs.length ? b.docs.map(d => {
       const dd = dias(d.v);
       const p = dd < 0 ? '<span class="pill crit">vencido</span>' : dd <= 30 ? '<span class="pill warn">' + dd + ' días</span>' : '<span class="pill ok">vigente</span>';
-      return '<div class="doc"><span>' + d.t + '</span><span class="mono">' + fecha(d.v) + ' &nbsp;' + p + '</span></div>';
+      return '<div class="doc"><span>' + esc(d.t) + '</span><span class="mono">' + fecha(d.v) + ' &nbsp;' + p + '</span></div>';
     }).join('') : '<p class="note" style="margin:0">Sin documentación con vencimiento informada en el listado.</p>') + '</div></div>' +
     '<h4 style="margin:0;padding:14px 16px 0;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Bitácora</h4>' +
     '<ul class="tl">' + (b.bitacora.length ? b.bitacora.map(e =>
       '<li class="' + (e.tipo === 'Falla' ? 'crit' : '') + '">' +
       (e.costo ? '<span class="cost">' + fmt$.format(e.costo) + '</span>' : '') +
       '<div class="when">' + fecha(e.f) + ' · ' + e.tipo + '</div>' +
-      '<div>' + e.det + '</div><div class="by">' + e.por + '</div></li>').join('') :
-      '<li><div class="d" style="color:var(--muted)">Sin registros todavía. Los services, reparaciones, fallas y lecturas van a ir quedando acá, con responsable y costo.</div></li>') +
+      '<div>' + esc(e.det) + '</div><div class="by">' + esc(e.por) + '</div></li>').join('') :
+      '<li><div class="d" style="color:var(--muted)">Sin registros todavía. Los services, reparaciones, fallas, checklists y lecturas van a ir quedando acá, con responsable y costo.</div></li>') +
     '</ul></div>';
 }
 
+/* ============ Wiki técnica ============ */
+function vWiki() {
+  if (!WIKI.length) return '<h2>Wiki técnica del parque</h2><p class="sub">La investigación sobre sitios especializados está en curso; esta sección se completa con los planes de service, fallas típicas y buenas prácticas de cada familia de equipos.</p>';
+  return '<h2>Wiki técnica del parque</h2>' +
+    '<p class="sub">Planes de service, fallas típicas y buenas prácticas por familia de equipo, elaborados a partir de manuales del fabricante, foros de operadores y sitios especializados (' + WIKI.reduce((s, w) => s + (w.fuentes || 0), 0) + ' fuentes consultadas). Ajustados a uso severo en demolición.</p>' +
+    WIKI.map(w => {
+      const n = BIENES.filter(b => w.match(b)).length;
+      return '<details class="wk"><summary>' + esc(w.titulo) + '<span class="tag">' + (n ? n + ' en el parque · ' : '') + (w.fuentes || 0) + ' fuentes</span></summary><div class="bd">' +
+        (w.plan && w.plan.length ? '<div class="wk-h">Plan de service</div><ul>' + w.plan.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '') +
+        (w.fallas && w.fallas.length ? '<div class="wk-h">Fallas típicas</div><ul>' + w.fallas.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '') +
+        (w.practicas && w.practicas.length ? '<div class="wk-h">Buenas prácticas</div><ul>' + w.practicas.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '') +
+        (w.checks && w.checks.length ? '<div class="wk-h">Checks diarios del operador</div><ul>' + w.checks.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '') +
+        '</div></details>';
+    }).join('');
+}
+
+/* ============ Predictivo ============ */
+function setUso(cat, v) { usoCat[cat] = parseInt(v, 10) || 0; render(); }
+function vPredictivo() {
+  const rows = BIENES.filter(b => b.plan && ['MAQ', 'EQU', 'CAM', 'CV', 'AU'].includes(b.cat)).map(b => {
+    const u = CATS[b.cat].unidad, uso = usoCat[b.cat] || 0;
+    let rest = null, fEst = null;
+    if (b.medidor != null && b.plan.ultimo != null) {
+      rest = (b.plan.ultimo + b.plan.intervalo) - b.medidor;
+      if (uso > 0) fEst = new Date(HOY.getTime() + Math.max(0, Math.round(rest / uso * 30)) * 864e5);
+    }
+    return { b, u, rest, fEst };
+  }).sort((a, b) => (a.fEst ? a.fEst.getTime() : Infinity) - (b.fEst ? b.fEst.getTime() : Infinity));
+  const conDato = rows.filter(r => r.fEst);
+  return '<h2>Mantenimiento predictivo</h2>' +
+    '<p class="sub">Con la última lectura de cada medidor y el uso mensual estimado, el sistema proyecta la fecha del próximo service. La proyección mejora sola a medida que se cargan lecturas (parte de obra y checklist de combustible).</p>' +
+    '<h2 style="font-size:14px">Uso mensual estimado por categoría</h2>' +
+    '<div class="grid2">' + ['MAQ', 'EQU', 'CAM', 'CV', 'AU'].map(c =>
+      '<div class="kpi"><div class="l">' + CATS[c].nombre + ' (' + CATS[c].unidad + '/mes)</div>' +
+      '<input class="uso-in" type="number" min="0" value="' + (usoCat[c] || 0) + '" onchange="setUso(\'' + c + '\',this.value)"></div>').join('') + '</div>' +
+    '<h2>Proyección del parque</h2>' +
+    (conDato.length ? '' : '<p class="sub">Todavía no hay lecturas de medidor cargadas: la tabla muestra el plan de cada bien y se completa con la primera lectura.</p>') +
+    '<div class="twrap"><table><thead><tr><th>Interno</th><th>Bien</th><th>Medidor</th><th>Restante</th><th>Fecha estimada</th></tr></thead><tbody>' +
+    rows.slice(0, 60).map(({ b, u, rest, fEst }) =>
+      '<tr onclick="abrir(\'' + b.id + '\')"><td class="interno">' + b.id + '</td>' +
+      '<td>' + esc((b.clas ? b.clas + ' · ' : '') + b.modelo) + '</td>' +
+      '<td class="mono">' + (b.medidor != null ? fmtN.format(b.medidor) + ' ' + u : '—') + '</td>' +
+      '<td class="mono">' + (rest != null ? (rest <= 0 ? '<span style="color:var(--crit);font-weight:700">vencido</span>' : fmtN.format(rest) + ' ' + u) : 'sin lectura') + '</td>' +
+      '<td class="mono">' + (fEst ? fecha(fEst) : '—') + '</td></tr>').join('') +
+    '</tbody></table></div>' +
+    '<h2>Técnicas predictivas recomendadas</h2><div class="card" style="padding:14px 16px;font-size:13.5px">' + PRED_INFO + '</div>';
+}
+const PRED_INFO = "La sección se completa con la investigación en curso: análisis de aceite periódico, control de presión de nitrógeno en martillos, inspección de fisuras y telemetría de horómetros.";
+
+/* ============ Taller: cola, producción, indicadores ============ */
+function setTT(t) { tallerTab = t; cerrando = null; render(); }
 function vTaller() {
+  const tabs = [['cola', 'Cola de OTs'], ['produccion', 'Producción'], ['indicadores', 'Indicadores']];
+  let bd = '';
+  if (tallerTab === 'cola') bd = tallerCola();
+  else if (tallerTab === 'produccion') bd = tallerProduccion();
+  else bd = tallerIndicadores();
+  return '<h2>Taller</h2>' +
+    '<div class="subtabs">' + tabs.map(([k, l]) => '<button class="' + (tallerTab === k ? 'on' : '') + '" onclick="setTT(\'' + k + '\')">' + l + '</button>').join('') + '</div>' + bd;
+}
+function tallerCola() {
   const orden = { 'Pendiente': 0, 'En curso': 1, 'Cerrada': 2 };
   const lista = [...OTS].sort((a, b) => orden[a.estado] - orden[b.estado] || b.f - a.f);
-  return '<h2>Órdenes de trabajo</h2><p class="sub">El taller trabaja sobre esta cola. Cada OT cerrada queda registrada en la bitácora del bien.</p>' +
+  return '<p class="sub">Cada OT cerrada registra quién la hizo, las horas y el costo — de ahí salen la producción y los indicadores.</p>' +
     '<div class="card">' + (lista.length ? lista.map(o => {
       const b = buscar(o.bien);
       const p = o.estado === 'Pendiente' ? 'crit' : o.estado === 'En curso' ? 'warn' : 'ok';
+      const per = PERSONAL.find(x => x.id === o.asignado);
       const btn = o.estado === 'Pendiente' ? '<button class="btn ghost" onclick="avanzar(\'' + o.id + '\')">Iniciar</button>' :
-        o.estado === 'En curso' ? '<button class="btn primary" onclick="avanzar(\'' + o.id + '\')">Cerrar OT</button>' : '';
+        o.estado === 'En curso' ? '<button class="btn primary" onclick="pedirCierre(\'' + o.id + '\')">Cerrar OT</button>' : '';
+      const cierre = cerrando === o.id ?
+        '<div class="cierre"><label>Quién la hizo</label><select id="c-per">' + PERSONAL.map(x => '<option value="' + x.id + '">' + x.nombre + ' (' + x.rol + ')</option>').join('') + '</select>' +
+        '<label>Horas</label><input id="c-hs" type="number" min="0.5" step="0.5" value="2" style="width:80px">' +
+        '<label>Costo repuestos $</label><input id="c-costo" type="number" min="0" value="0" style="width:130px">' +
+        '<button class="btn primary" onclick="confirmarCierre(\'' + o.id + '\')">Confirmar cierre</button></div>' : '';
       return '<div class="ot"><span class="id">' + o.id + '</span>' +
-        '<div class="what"><b style="cursor:pointer" onclick="abrir(\'' + o.bien + '\')">' + o.bien + (b ? ' · ' + b.modelo : '') + '</b>' +
-        '<div class="d">' + o.tipo + ' · ' + fecha(o.f) + ' — ' + o.det + '</div></div>' +
-        '<span class="pill ' + p + '">' + o.estado + '</span>' + btn + '</div>';
-    }).join('') : '<div class="ot"><div class="d" style="color:var(--muted)">Sin órdenes de trabajo. Reportá una falla desde <b>Parte de obra</b> y la primera OT aparece acá.</div></div>') + '</div>';
+        '<div class="what"><b style="cursor:pointer" onclick="abrir(\'' + o.bien + '\')">' + o.bien + (b ? ' · ' + esc(b.modelo) : '') + '</b>' +
+        '<div class="d">' + o.tipo + ' · ' + fecha(o.f) + (per ? ' · ' + per.nombre : '') + (o.hs ? ' · ' + o.hs + ' hs' : '') + ' — ' + esc(o.det) + '</div></div>' +
+        '<span class="pill ' + p + '">' + o.estado + '</span>' + btn + cierre + '</div>';
+    }).join('') : '<div class="ot"><div class="d" style="color:var(--muted)">Sin órdenes de trabajo. Reportá una falla desde <b>Parte de obra</b> o un checklist con fallas y la primera OT aparece acá.</div></div>') + '</div>';
+}
+function pedirCierre(id) { cerrando = id; render(); }
+function confirmarCierre(id) {
+  const o = OTS.find(x => x.id === id); if (!o) return;
+  o.asignado = $('#c-per').value;
+  o.hs = parseFloat($('#c-hs').value) || 0;
+  o.costoRep = parseInt($('#c-costo').value, 10) || 0;
+  o.estado = 'Cerrada'; o.fCierre = new Date(HOY.getTime());
+  const per = PERSONAL.find(x => x.id === o.asignado);
+  const b = buscar(o.bien);
+  if (b) {
+    b.bitacora.unshift({ f: HOY, tipo: o.tipo === 'Preventivo' ? 'Service' : 'Reparación', det: 'Cierre de ' + o.id + ' (' + o.hs + ' hs): ' + o.det, por: 'Taller Mitre · ' + (per ? per.nombre : ''), costo: o.costoRep });
+    if (b.estado === 'taller') b.estado = 'operativo';
+  }
+  cerrando = null;
+  toast(o.id + ' cerrada por ' + (per ? per.nombre : 'taller') + ' y registrada en la bitácora de ' + o.bien);
+  render();
 }
 function avanzar(id) {
   const o = OTS.find(x => x.id === id); if (!o) return;
-  if (o.estado === 'Pendiente') { o.estado = 'En curso'; toast(o.id + ' iniciada por el taller'); }
-  else if (o.estado === 'En curso') {
-    o.estado = 'Cerrada';
-    const b = buscar(o.bien);
-    if (b) {
-      b.bitacora.unshift({ f: HOY, tipo: 'Reparación', det: 'Cierre de ' + o.id + ': ' + o.det, por: 'Taller Mitre', costo: 0 });
-      if (b.estado === 'taller') b.estado = 'operativo';
+  if (o.estado === 'Pendiente') { o.estado = 'En curso'; toast(o.id + ' iniciada por el taller'); render(); }
+}
+function tallerProduccion() {
+  const cerradas = OTS.filter(o => o.estado === 'Cerrada');
+  return '<p class="sub">Producción individual sobre OTs cerradas. Los nombres son de ejemplo: acá van los mecánicos y herreros reales del taller de Munro.</p>' +
+    '<div class="twrap"><table><thead><tr><th>Persona</th><th>Rol</th><th>OTs cerradas</th><th>Horas</th><th>Repuestos $</th><th>Hs promedio por OT</th></tr></thead><tbody>' +
+    PERSONAL.map(p => {
+      const mias = cerradas.filter(o => o.asignado === p.id);
+      const hs = mias.reduce((s, o) => s + (o.hs || 0), 0);
+      const co = mias.reduce((s, o) => s + (o.costoRep || 0), 0);
+      return '<tr><td><b>' + p.nombre + '</b></td><td>' + p.rol + '</td>' +
+        '<td class="mono">' + mias.length + '</td><td class="mono">' + hs.toFixed(1) + '</td>' +
+        '<td class="mono">' + fmt$.format(co) + '</td><td class="mono">' + (mias.length ? (hs / mias.length).toFixed(1) : '—') + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    (cerradas.length ? '' : '<p class="note">Todavía no hay OTs cerradas: cerrá una desde la Cola (con persona, horas y costo) y la producción aparece acá al instante.</p>');
+}
+function tallerIndicadores() {
+  const cerradas = OTS.filter(o => o.estado === 'Cerrada');
+  const totHs = cerradas.reduce((s, o) => s + (o.hs || 0), 0);
+  const prev = cerradas.filter(o => o.tipo === 'Preventivo').length;
+  const mttr = cerradas.length ? (totHs / cerradas.length) : 0;
+  const porBien = {};
+  OTS.forEach(o => { (porBien[o.bien] = porBien[o.bien] || []).push(o); });
+  const bienes = Object.entries(porBien).sort((a, b) => b[1].length - a[1].length);
+  return '<div class="kpis">' +
+    kpi(OTS.length, 'OTs totales') +
+    kpi(cerradas.length, 'Cerradas', 'ok') +
+    kpi(mttr ? mttr.toFixed(1) + ' hs' : '—', 'MTTR (hs por reparación)') +
+    kpi(cerradas.length ? Math.round(prev / cerradas.length * 100) + '%' : '—', '% preventivo (típico 45–60, meta >85)') +
+    '</div>' +
+    '<h2>Por equipo</h2><p class="sub">Equipos con más intervenciones: los primeros candidatos a revisar de fondo o reemplazar. La reincidencia (dos OTs del mismo bien en 30 días) marca reparaciones que no resolvieron la causa raíz.</p>' +
+    '<div class="twrap"><table><thead><tr><th>Interno</th><th>OTs</th><th>Horas taller</th><th>Repuestos $</th><th>Reincidencia</th></tr></thead><tbody>' +
+    (bienes.length ? bienes.map(([id, ots]) => {
+      const hs = ots.reduce((s, o) => s + (o.hs || 0), 0);
+      const co = ots.reduce((s, o) => s + (o.costoRep || 0), 0);
+      const fechas = ots.map(o => o.f.getTime()).sort();
+      let reinc = false;
+      for (let i = 1; i < fechas.length; i++) if (fechas[i] - fechas[i - 1] <= 30 * 864e5) reinc = true;
+      return '<tr onclick="abrir(\'' + id + '\')"><td class="interno">' + id + '</td><td class="mono">' + ots.length + '</td>' +
+        '<td class="mono">' + hs.toFixed(1) + '</td><td class="mono">' + fmt$.format(co) + '</td>' +
+        '<td>' + (reinc ? '<span class="pill crit">Sí</span>' : '<span class="pill ok">No</span>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="color:var(--muted)">Sin OTs registradas todavía.</td></tr>') +
+    '</tbody></table></div>';
+}
+
+/* ============ Checklists ============ */
+function setChk(k, v) { if (k === 'tipo') { chkTipo = v; chkEstado = {}; } else chkBien = v; render(); }
+function marcarChk(i, val) { chkEstado[i] = chkEstado[i] === val ? null : val; render(); }
+function vChecklists() {
+  const tpl = CHECKLISTS[chkTipo];
+  const opts = BIENES.map(b => '<option value="' + b.id + '"' + (chkBien === b.id ? ' selected' : '') + '>' + b.id + ' · ' + esc((b.clas ? b.clas + ' ' : '') + b.modelo) + '</option>').join('');
+  const resp = Object.values(chkEstado).filter(Boolean).length;
+  const fallas = tpl.items.filter((x, i) => chkEstado[i] === 'falla');
+  return '<h2>Checklists de inspección</h2>' +
+    '<p class="sub">Tres momentos de control: cuando el equipo entra al taller, cuando se lo recorre en obra, y en cada carga de combustible con el equipo propio — la carga es la oportunidad perfecta para tomar la lectura del horómetro y mirar niveles.</p>' +
+    '<div class="subtabs">' + Object.entries(CHECKLISTS).map(([k, t]) =>
+      '<button class="' + (chkTipo === k ? 'on' : '') + '" onclick="setChk(\'tipo\',\'' + k + '\')">' + t.titulo + '</button>').join('') + '</div>' +
+    '<div class="filters"><select onchange="setChk(\'bien\',this.value)"><option value="">Elegí el equipo…</option>' + opts + '</select>' +
+    (tpl.lectura ? '<input id="chk-lect" type="number" min="0" placeholder="Lectura horómetro / km">' : '') + '</div>' +
+    '<div class="card">' + tpl.items.map((it, i) =>
+      '<div class="chk-row"><span>' + it + '</span><span class="seg3">' +
+      '<button class="ok' + (chkEstado[i] === 'ok' ? ' on' : '') + '" onclick="marcarChk(' + i + ',\'ok\')">OK</button>' +
+      '<button class="falla' + (chkEstado[i] === 'falla' ? ' on' : '') + '" onclick="marcarChk(' + i + ',\'falla\')">Falla</button>' +
+      '<button class="na' + (chkEstado[i] === 'na' ? ' on' : '') + '" onclick="marcarChk(' + i + ',\'na\')">N/A</button>' +
+      '</span></div>').join('') + '</div>' +
+    '<div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">' +
+    '<label style="font-size:13px"><input type="checkbox" id="chk-ots"' + (chkOTs ? ' checked' : '') + ' onchange="chkOTs=this.checked"> Crear una OT por cada ítem en falla</label>' +
+    '<button class="btn primary" onclick="guardarChk()">Guardar checklist (' + resp + '/' + tpl.items.length + ')</button>' +
+    (fallas.length ? '<span class="pill crit">' + fallas.length + ' en falla</span>' : '') + '</div>';
+}
+function guardarChk() {
+  const b = buscar(chkBien);
+  if (!b) { toast('Elegí primero el equipo del checklist.'); return; }
+  const tpl = CHECKLISTS[chkTipo];
+  const oks = tpl.items.filter((x, i) => chkEstado[i] === 'ok').length;
+  const fallas = tpl.items.map((x, i) => chkEstado[i] === 'falla' ? x : null).filter(Boolean);
+  if (!oks && !fallas.length) { toast('Marcá al menos un ítem antes de guardar.'); return; }
+  const lectEl = $('#chk-lect');
+  if (lectEl && lectEl.value) {
+    const v = parseInt(lectEl.value, 10);
+    if (isFinite(v) && (b.medidor == null || v >= b.medidor)) {
+      b.medidor = v;
+      if (b.plan && b.plan.ultimo == null) b.plan.ultimo = v;
     }
-    toast(o.id + ' cerrada y registrada en la bitácora de ' + o.bien);
   }
+  b.bitacora.unshift({ f: HOY, tipo: 'Checklist', det: tpl.titulo + ': ' + oks + ' OK' + (fallas.length ? ', ' + fallas.length + ' en falla (' + fallas.join('; ') + ')' : ', sin fallas'), por: 'Checklist de ' + tpl.titulo.toLowerCase(), costo: 0 });
+  let n = 0;
+  if (chkOTs) fallas.forEach(f => {
+    OTS.unshift({ id: 'OT-' + String(otSeq++).padStart(4, '0'), bien: b.id, tipo: 'Correctivo', det: 'Checklist ' + tpl.titulo.toLowerCase() + ': ' + f, estado: 'Pendiente', f: HOY });
+    n++;
+  });
+  chkEstado = {};
+  toast('Checklist guardado en la bitácora de ' + b.id + (n ? '. Se crearon ' + n + ' OT(s).' : '.'));
   render();
 }
 
-let modoParte = 'lectura';
+/* ============ Parte de obra ============ */
 function vObra() {
-  const opts = BIENES.map(b => '<option value="' + b.id + '">' + b.id + ' · ' + (b.clas ? b.clas + ' ' : '') + b.modelo + '</option>').join('');
+  const opts = BIENES.map(b => '<option value="' + b.id + '">' + b.id + ' · ' + esc((b.clas ? b.clas + ' ' : '') + b.modelo) + '</option>').join('');
   return '<h2>Parte diario desde la obra</h2>' +
     '<p class="sub">Así lo ve un operador o capataz en el celular: 30 segundos para informar horas o avisar una falla.</p>' +
     '<div class="phone"><div class="ph-head">MITRE · Parte de obra<small>' + fecha(HOY) + '</small></div>' +
@@ -389,7 +681,7 @@ function vObra() {
       : '<div><label for="p-det">Qué pasó</label><textarea id="p-det" rows="3" placeholder="ej. Pérdida de hidráulico en el brazo, la máquina quedó parada" required></textarea></div>') +
     '<button class="btn primary" type="submit">' + (modoParte === 'lectura' ? 'Enviar lectura' : 'Enviar reporte de falla') + '</button>' +
     '</form></div>' +
-    '<p class="note" style="text-align:center">Una lectura actualiza el medidor del bien.<br>Una falla crea automáticamente una OT en la cola del taller.</p>';
+    '<p class="note" style="text-align:center">Una lectura actualiza el medidor y activa el predictivo.<br>Una falla crea automáticamente una OT en la cola del taller.</p>';
 }
 function enviarParte(ev) {
   ev.preventDefault();
@@ -398,8 +690,10 @@ function enviarParte(ev) {
     const v = parseInt($('#p-lect').value, 10);
     if (!isFinite(v) || (b.medidor != null && v < b.medidor)) { toast('La lectura debe ser mayor a la actual (' + fmtN.format(b.medidor) + ')'); return; }
     b.medidor = v;
+    let extra = '';
+    if (b.plan && b.plan.ultimo == null) { b.plan.ultimo = v; extra = ' Se tomó como punto de partida del plan de service.'; }
     b.bitacora.unshift({ f: HOY, tipo: 'Lectura', det: 'Lectura ' + fmtN.format(v) + ' ' + (CATS[b.cat].unidad || '') + ' (parte de obra)', por: 'Parte de obra', costo: 0 });
-    toast('Lectura cargada en la bitácora de ' + b.id);
+    toast('Lectura cargada en la bitácora de ' + b.id + '.' + extra);
   } else {
     const det = $('#p-det').value.trim(); if (!det) return;
     const ot = { id: 'OT-' + String(otSeq++).padStart(4, '0'), bien: b.id, tipo: 'Correctivo', det, estado: 'Pendiente', f: HOY };
@@ -410,12 +704,14 @@ function enviarParte(ev) {
   render();
 }
 
+/* ============ Render ============ */
 function render() {
   nav();
   const app = $('#app');
   if (fichaId) { app.innerHTML = vFicha(buscar(fichaId)); return; }
   app.innerHTML = vista === 'tablero' ? vTablero() : vista === 'parque' ? vParque() :
-    vista === 'taller' ? vTaller() : vObra();
+    vista === 'wiki' ? vWiki() : vista === 'predictivo' ? vPredictivo() :
+    vista === 'taller' ? vTaller() : vista === 'checklists' ? vChecklists() : vObra();
   if (vista === 'parque') { const inp = $('.filters input'); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } }
 }
 render();
